@@ -1,14 +1,16 @@
 <script setup lang="ts">
-import Sidebar from '@/components/Sidebar.vue';
 
 </script>
 
 <template>
-  <main>
-    <Sidebar :selected="'map'" />
-    <h1>MapSelector</h1>
-  </main>
+  <section class="content">
+    <h1>Map</h1>
+  </section>
 </template>
 
 <style scoped>
+.content {
+  height: inherit;
+  width: inherit;
+}
 </style>

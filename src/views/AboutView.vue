@@ -1,14 +1,16 @@
 <script setup lang="ts">
-import Sidebar from '@/components/Sidebar.vue';
 
 </script>
 
 <template>
-  <main>
-    <Sidebar :selected="'about'" />
+  <section class="content">
     <h1>About</h1>
-  </main>
+  </section>
 </template>
 
 <style scoped>
+.content {
+  height: inherit;
+  width: inherit;
+}
 </style>

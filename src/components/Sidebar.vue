@@ -1,10 +1,9 @@
 <script setup lang="ts">
+import { ref } from 'vue';
+
 
 const props = defineProps({
-    selected: {
-        type: String,
-        default: ''
-    }
+    selected: String
 });
 
 function isSelected(page: string) {
@@ -21,39 +20,52 @@ function isSelected(page: string) {
         <nav>
             <ul>
                 <li>
-                    <router-link to="/" :class="{ selected: isSelected('home') }">
-                        <img class="icon" src="../assets/icons/home.svg" alt="home_icon">
-                        <span class="icon-text">Home</span>
+                    <router-link to="/">
+                        <div class="link-container" :class="{ selected: isSelected('home') }">
+                            <img class="icon" src="../assets/icons/home.svg" alt="home_icon">
+                            <span class="icon-text">Home</span>
+                        </div>
                     </router-link>
                 </li>
                 <li>
-                    <router-link to="/agent" :class="{ selected: isSelected('agent') }">
-                        <img class="icon" src="../assets/icons/agent.svg" alt="agent_icon">
-                        <span class="icon-text">Agent</span>
+                    <router-link to="/agent">
+                        <div class="link-container" :class="{ selected: isSelected('agent') }">
+                            <img class="icon" src="../assets/icons/agent.svg" alt="agent_icon">
+                            <span class="icon-text">Agent</span>
+                        </div>
+                        
                     </router-link>
                 </li>
                 <li>
-                    <router-link to="/map" :class="{ selected: isSelected('map') }">
-                        <img class="icon" src="../assets/icons/map.svg" alt="map_icon">
-                        <span class="icon-text">Map</span>
+                    <router-link to="/map">
+                        <div class="link-container" :class="{ selected: isSelected('map') }">
+                            <img class="icon" src="../assets/icons/map.svg" alt="map_icon">
+                            <span class="icon-text">Map</span>
+                        </div>
                     </router-link>
                 </li>
                 <li>
-                    <router-link to="/strategy" :class="{ selected: isSelected('strategy') }">
-                        <img class="icon" src="../assets/icons/strategy.svg" alt="strategy_icon">
-                        <span class="icon-text">Strategy</span>
+                    <router-link to="/strategy">
+                        <div class="link-container" :class="{ selected: isSelected('strategy') }">
+                            <img class="icon" src="../assets/icons/strategy.svg" alt="strategy_icon">
+                            <span class="icon-text">Strategy</span>
+                        </div>
                     </router-link>
                 </li>
                 <li>
-                    <router-link to="/settings" :class="{ selected: isSelected('settings') }">
-                        <img class="icon" src="../assets/icons/settings.svg" alt="settings_icon">
-                        <span class="icon-text">Settings</span>
+                    <router-link to="/settings">
+                        <div class="link-container" :class="{ selected: isSelected('settings') }">
+                            <img class="icon" src="../assets/icons/settings.svg" alt="settings_icon">
+                            <span class="icon-text">Settings</span>
+                        </div>
                     </router-link>
                 </li>
                 <li>
-                    <router-link to="/about" :class="{ selected: isSelected('about') }">
-                        <img class="icon" src="../assets/icons/about.svg" alt="home_icon">
-                        <span class="icon-text">Avout</span>
+                    <router-link to="/about">
+                        <div class="link-container" :class="{ selected: isSelected('about') }">
+                            <img class="icon" src="../assets/icons/about.svg" alt="home_icon">
+                            <span class="icon-text">About</span>
+                        </div>
                     </router-link>
                 </li>
             </ul>
@@ -77,9 +89,6 @@ function isSelected(page: string) {
     display: flex;
     flex-direction: column;
     align-items: center;
-    
-    border-top-right-radius: 25px;
-    border-bottom-right-radius: 25px;
 }
 
 .logo-container {
@@ -103,6 +112,18 @@ ul {
     gap: 1rem;
 }
 
+.link-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.link-container:hover {
+    cursor: pointer;
+    filter: brightness(0) saturate(100%) invert(46%) sepia(36%) saturate(5351%) hue-rotate(326deg) brightness(96%) contrast(108%);
+    color: var(--color-highlight);
+}
+
 .icon {
     width: var(--icon-size);
     aspect-ratio: 1/1;
@@ -122,12 +143,29 @@ ul {
 }
 
 @media (min-width: 1024px) {
+    .logo {
+        width: calc(var(--icon-size) * 3);
+    }
+
     .sidebar {
         width: 15vw;
     }
 
+    .icon {
+        width: calc(var(--icon-size) * 1.2);
+    }
+
     .icon-text {
+        font-size: 1.2rem;
         display: inline;
+    }
+
+    ul {
+        gap: 2rem;
+    }
+
+    .link-container {
+        gap: 1rem;
     }
 }
 </style>

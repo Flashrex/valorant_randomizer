@@ -1,14 +1,22 @@
 <script setup lang="ts">
-import Sidebar from '@/components/Sidebar.vue';
+import Carousel from '../components/Carousel.vue';
 
 </script>
 
 <template>
-  <main>
-    <Sidebar :selected="'agent'" />
-    <h1>AgentSelector</h1>
-  </main>
+  <section class="content">
+    <Carousel />
+  </section>
 </template>
 
 <style scoped>
+.content {
+  height: inherit;
+  width: inherit;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 1rem;
+}
 </style>
