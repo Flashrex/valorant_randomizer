@@ -84,6 +84,10 @@ function agentSelect(agent: Agent) {
     console.log(agent);
 }
 
+function selectAllAgents(select = true) {
+    agents.value.forEach(agent => agent.selected = select);
+}
+
 const groupedAgents: ComputedRef<GroupedAgents> = computed(() => {
   return agents.value.reduce((groups: GroupedAgents, agent: Agent) => {
     const key = agent.role.displayName;
@@ -99,9 +103,9 @@ const groupedAgents: ComputedRef<GroupedAgents> = computed(() => {
 <template>
   <div class="carousel-container">
       <div v-if="currentAgent" class="carousel-item">
-          <span class="img_container">
-            <img class="agent_bg" :src="currentAgent.background" :alt="currentAgent.displayName">
-            <img class="agent_portrait" :src="currentAgent.fullPortrait" :alt="currentAgent.displayName">
+          <span class="img-container">
+            <img class="agent-bg" :src="currentAgent.background" :alt="currentAgent.displayName">
+            <img class="agent-portrait" :src="currentAgent.fullPortrait" :alt="currentAgent.displayName">
           </span>
           
           <h2>{{ currentAgent.displayName }}</h2>
@@ -115,9 +119,16 @@ const groupedAgents: ComputedRef<GroupedAgents> = computed(() => {
       <button @click="rollAgents()">Randomize</button>
 
       <div class="settings-container">
-        <label>No Animation</label>
-        <img v-if="noAnimation" class="sel-icon" src="../assets/icons/selected.png" alt="selected" @click="noAnimation = !noAnimation">
-        <img v-else class="sel-icon" src="../assets/icons/not_selected.png" alt="not_selected" @click="noAnimation = !noAnimation">
+        <div class="flex">
+          <label>Skip Animation</label>
+          <img v-if="noAnimation" class="sel-icon" src="@/assets/icons/selected.png" alt="selected" @click="noAnimation = !noAnimation">
+          <img v-else class="sel-icon" src="@/assets/icons/not_selected.png" alt="not_selected" @click="noAnimation = !noAnimation">
+        </div>
+
+        <div class="flex">
+          <button @click="selectAllAgents()">Select All</button>
+          <button @click="selectAllAgents(false)">Deselect All</button>
+        </div>
       </div>
 
       <div class="agent-container">
@@ -159,19 +170,19 @@ const groupedAgents: ComputedRef<GroupedAgents> = computed(() => {
     overflow: hidden;
 }
 
-.img_container {
+.img-container {
     position: relative;
     background-color: transparent;
 }
 
-.agent_portrait {
+.agent-portrait {
     position: relative;
     height: 200px;
     opacity: 1;
     z-index: 2;
 }
 
-.agent_bg {
+.agent-bg {
     position: absolute;
     top: 0;
     left: 0;
@@ -214,7 +225,16 @@ button {
     display: flex;
     justify-content: center;
     align-items: center;
+    flex-direction: column;
     gap: 0.5rem;
+}
+
+.flex > button {
+    text-wrap: nowrap;
+    width: auto;
+    font-weight: 400;
+    font-size: 0.8rem;
+    padding: 0.25rem 0.5rem;
 }
 
 label {
@@ -247,6 +267,13 @@ label {
 
 .agent-icon.selected {
   filter: grayscale(0%);
+}
+
+.flex {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 }
 
 .flex-wrap {
@@ -285,11 +312,11 @@ label {
 }
 
 @media (min-width: 1024px) {
-    .agent_portrait {
+    .agent-portrait {
       height: 40vh;
     }
 
-    .agent_icon {
+    .agent-icon {
       width: 50px;
     }
 
