@@ -1,6 +1,5 @@
 import { createRouter, createWebHistory } from "vue-router";
 
-import HomeView from "@/views/HomeView.vue";
 import Agentview from "@/views/Agentview.vue";
 import MapView from "@/views/MapView.vue";
 import StrategyView from "@/views/StrategyView.vue";
@@ -12,8 +11,7 @@ const router = createRouter({
   routes: [
     {
       path: "/",
-      name: "home",
-      component: HomeView,
+      redirect: "/agent",
     },
     {
       path: "/agent",

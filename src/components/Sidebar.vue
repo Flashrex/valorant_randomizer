@@ -20,14 +20,6 @@ function isSelected(page: string) {
         <nav>
             <ul>
                 <li>
-                    <router-link to="/">
-                        <div class="link-container" :class="{ selected: isSelected('home') }">
-                            <img class="icon" src="../assets/icons/home.svg" alt="home_icon">
-                            <span class="icon-text">Home</span>
-                        </div>
-                    </router-link>
-                </li>
-                <li>
                     <router-link to="/agent">
                         <div class="link-container" :class="{ selected: isSelected('agent') }">
                             <img class="icon" src="../assets/icons/agent.svg" alt="agent_icon">
