@@ -23,7 +23,7 @@ function isSelected(page: string) {
                     <router-link to="/agent">
                         <div class="link-container" :class="{ selected: isSelected('agent') }">
                             <img class="icon" src="../assets/icons/agent.svg" alt="agent_icon">
-                            <span class="icon-text">Agent</span>
+                            <span class="icon-text">Agents</span>
                         </div>
                         
                     </router-link>
@@ -32,7 +32,7 @@ function isSelected(page: string) {
                     <router-link to="/map">
                         <div class="link-container" :class="{ selected: isSelected('map') }">
                             <img class="icon" src="../assets/icons/map.svg" alt="map_icon">
-                            <span class="icon-text">Map</span>
+                            <span class="icon-text">Maps</span>
                         </div>
                     </router-link>
                 </li>
@@ -40,7 +40,7 @@ function isSelected(page: string) {
                     <router-link to="/strategy">
                         <div class="link-container" :class="{ selected: isSelected('strategy') }">
                             <img class="icon" src="../assets/icons/strategy.svg" alt="strategy_icon">
-                            <span class="icon-text">Strategy</span>
+                            <span class="icon-text">Strategies</span>
                         </div>
                     </router-link>
                 </li>
