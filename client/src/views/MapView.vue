@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import MapRaffle from '@/components/MapRaffle.vue';
-// import Wheel from '../components/Wheel.vue';
 
 </script>
 
@@ -12,12 +11,12 @@ import MapRaffle from '@/components/MapRaffle.vue';
 
 <style scoped>
 .content {
+  width: 100%;
   height: inherit;
-  width: inherit;
 
   display: flex;
-  flex-direction: column;
-  align-items: center;
+  justify-content: center;
+  align-items: flex-start;
   margin: 1rem;
 }
 </style>

@@ -19,6 +19,8 @@ export type Map = {
   yMultiplier: number;
   yScalarToAdd: number;
   callouts: Callout[];
+  left: number;
+  hidden: boolean;
 };
 
 type Callout = {

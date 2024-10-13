@@ -3,18 +3,21 @@ import { nextTick, onMounted, ref } from 'vue';
 import type { Map } from '@/types/map';
 import axios from 'axios';
 
-const raffle = ref(null as HTMLElement | null);
-const maps = ref(null as Map[] | null);
-const mapItems = ref(null as Map[] | null);
-const currentMapIndex = ref(2);
-const isButtonVisible = ref(true);
+const isLoading = ref<boolean>(false);
+const maps = ref<Map[]>([]);
+const mapItems = ref<Map[]>([]);
+
+const spinButton = ref<HTMLElement>();
+const isButtonVisible = ref<boolean>(true);
 
 const data = {
     width: 220, //px
     gap: 25, //px
-    transitionDuration: 2500, //ms
+    transitionDuration: 10000, //ms
+    transitionUpdateSpeed: 1, //ms
+    maxMoveSpeed: 25, //px
+    minMoveSpeed: 1, //px
 }
-
 
 /** Initialization */
 onMounted(async () => {
@@ -22,14 +25,18 @@ onMounted(async () => {
 })
 
 async function loadMaps() {
-    const cachedMaps = localStorage.getItem('maps');
 
-    if (cachedMaps) {
-        const temp = JSON.parse(cachedMaps);
-        maps.value = temp.map((map: Map) => ({ ...map, selected: true, current: false }));
-    } else {
-        maps.value = await requestMapsFromServer();
+    let result = await fetchMaps();
+
+    if (!result || result.length === 0) {
+        const cachedMaps = localStorage.getItem('maps');
+        if (cachedMaps) result = JSON.parse(cachedMaps);
     }
+
+    if (!result) return;
+
+    maps.value = result;
+    localStorage.setItem('maps', JSON.stringify(maps.value));
 
     //waiting for nextTick to ensure that the DOM is updated
     await nextTick();
@@ -37,9 +44,6 @@ async function loadMaps() {
 
     //adding initial items
     addMapItems();
-
-    //selecting initial map
-    selectMap(true);
 }
 
 function shuffleArray<T>(array: T[]): void {
@@ -60,109 +64,164 @@ function shuffleArray<T>(array: T[]): void {
     }
 }
 
-async function requestMapsFromServer(): Promise<Map[]> {
-    await axios.get('https://valorant-api.com/v1/maps')
-        .then((response) => {
-            //const filtered = response.data.data.filter((map: Map) => agent.isPlayableCharacter);
-            //console.log(filtered);
+async function fetchMaps(): Promise<Map[]> {
+    let maps = [] as Map[];
 
-            return response.data.data.map((map: Map) => ({ ...map, selected: true, current: false }));
+    await axios.get('http://localhost:1337/api/maps')
+        .then((response) => {
+            maps = response.data.map((map: Map) => ({ ...map, selected: true, current: false }));
         })
         .catch((error) => {
             console.error(error);
-        });
+        })
 
-    return [];
+    return maps;
 }
 
 const addMapItems = () => {
-    if (!raffle.value || !maps.value) return;
+    if (!maps.value) return;
     if (!mapItems.value) mapItems.value = [];
 
-    const filteredMaps = maps.value.filter(map => map.selected);
+    const activeMaps = maps.value.filter(map => map.selected).splice(0, 6);
 
-    const tempArr = [];
-    for (var i = 0; i < maps.value.length * 2; i++) {
-        tempArr.push(filteredMaps[Math.floor(Math.random() * filteredMaps.length)]);
-    }
-    shuffleArray(tempArr);
+    shuffleArray(activeMaps);
 
-    mapItems.value = [...mapItems.value, ...tempArr.map(map => ({ ...map }))];
-    console.log(mapItems.value);
+    activeMaps.forEach((map, index) => {
+        if (index === 2) map.current = true;
+        map.left = data.gap * index + (data.width * index);
+    });
+
+    mapItems.value = [...activeMaps];
 }
 
 /** Selection */
 const onSpin = (e: MouseEvent) => {
-    if (!raffle.value || !maps.value || !mapItems.value || !e.target) return;
+    if (!maps.value || !mapItems.value) return;
 
     isButtonVisible.value = false;
 
-    //add new items so we dont run out of items
-    addMapItems();
+    let ending = false;
+    let moveSpeed = data.minMoveSpeed;
 
-    //select winner and start spinning to map
-    const winner = selectWinner();
-    currentMapIndex.value = winner;
-    selectMap();
+    const interval = setInterval(() => {
+        mapItems.value?.forEach((map, index) => {
+            if (map.hidden || map.left === undefined) return;
+
+            if (ending) {
+                if (map.current && isCentered(map) && moveSpeed <= data.minMoveSpeed) {
+                    console.log('Winner:', map.displayName);
+                    clearInterval(interval);
+                    isButtonVisible.value = true;
+                    map.current = true;
+
+                    const activeMaps = mapItems.value?.filter(m => !m.hidden).sort((a, b) => a.left - b.left);
+
+                    if (activeMaps) {
+                        for (var i = 0; i < activeMaps?.length; i++) {
+                            activeMaps[i].left = data.gap * i + (data.width * i);
+                        }
+                    }
+
+                    return;
+                }
+            }
+
+            map.left -= moveSpeed;
+
+            map.current = isInCenterArea(map);
+            if (map.left <= -data.width) {
+                hideMap(map);
+                addMap(nextMap());
+            }
+        });
+
+        mapItems.value = mapItems.value.filter(map => !map.hidden);
+
+        if (!ending) {
+            if (moveSpeed < data.maxMoveSpeed) moveSpeed += 0.1;
+        } else {
+            if (moveSpeed >= data.minMoveSpeed) moveSpeed -= 0.1;
+        }
+
+
+    }, data.transitionUpdateSpeed);
 
     setTimeout(() => {
-        isButtonVisible.value = true;
+        ending = true;
     }, data.transitionDuration);
 }
-
-const selectWinner = (): number => {
-    if (!mapItems.value || !maps.value) return -1;
-
-    const currentIndex = currentMapIndex.value + maps.value.length; //adding maps.length to ensure that we dont get a map that is already visible
-
-    const filtered = maps.value.filter(map => map.selected);
-
-    const winner = filtered[Math.floor(Math.random() * filtered.length)];
-
-    return mapItems.value.findIndex((map, i) => i >= currentIndex && map.uuid === winner.uuid) + 1;
-}
-
-const selectMap = (instant = false) => {
-    if (!mapItems.value || !raffle.value) return;
-
-    //reset current map
-    mapItems.value.forEach(m => m.current = false);
-
-    //translate to the selected map
-    const translateX = data.gap * (currentMapIndex.value - 1) + (data.width * (currentMapIndex.value - 2));
-    raffle.value.style.transform = `translateX(${translateX * -1}px)`;
-
-    if (instant) {
-        mapItems.value[currentMapIndex.value].current = true;
-        return;
-    }
-
-
-    setTimeout(() => {
-        //set current map
-        if (mapItems.value) mapItems.value[currentMapIndex.value].current = true;
-    }, data.transitionDuration);
-};
 
 const mapSelect = (map: Map) => {
     if (!maps.value) return;
     map.selected = !map.selected;
 }
+
+const isInCenterArea = (map: Map) => {
+    if (!map.left) return false;
+
+    const cardMid = map.left + data.width / 2;
+
+    const min = (data.width * 2) + (data.gap * 2);
+    const max = (data.width * 3) + (data.gap * 2);
+
+    //if ((cardMid > min && cardMid < max)) console.log(map.displayName, min, cardMid, max, (cardMid > min && cardMid < max));
+    return cardMid > min && cardMid < max;
+}
+
+const isCentered = (map: Map) => {
+    if (!map.left) return false;
+
+    const cardMid = map.left + data.width / 2;
+    const min = (data.width * 2) + (data.gap * 2) + (data.width / 2) - 10;
+    const max = (data.width * 2) + (data.gap * 2) + (data.width / 2) + 10;
+
+    return cardMid > min && cardMid < max;
+}
+
+const highestX = () => {
+    const itemWithHighestLeft = mapItems.value.reduce((highest, item) => {
+        return (highest.left > item.left) ? highest : item;
+    });
+
+    return itemWithHighestLeft.left;
+}
+
+const nextMap = () => {
+    const activeMaps = maps.value.filter(map => map.selected);
+    return { ...activeMaps[Math.floor(Math.random() * activeMaps.length)] };
+}
+
+const hideMap = (map: Map) => {
+    if (!mapItems.value) return;
+
+    map.left = -data.width;
+    map.hidden = true;
+}
+
+const addMap = (next: Map) => {
+    if (next) {
+        next.left = highestX() + data.width + data.gap;
+        next.hidden = false;
+        mapItems.value = [...mapItems.value, next];
+    }
+}
 </script>
 
 <template>
     <div class="raffle-container">
-        <h1>Map Raffle</h1>
-        <div class="inner-raffle-container">
-            <div ref="raffle" class="raffle"
-                :style="{ gap: `${data.gap}px`, transitionDuration: `${data.transitionDuration}ms` }">
-                <div v-for="map in mapItems" class="raffle-item" :class="map.current ? 'current' : ''"
-                    :style="{ width: `${data.width}px` }" :key="map.uuid">
+        <div v-if="!isLoading" class="inner-raffle-container">
+            <div class="raffle" :style="{ gap: `${data.gap}px`, transitionDuration: `${data.transitionDuration}ms` }">
+                <div v-for="(map, index) in mapItems" class="raffle-item" :class="map.current ? 'current' : ''"
+                    :style="{ width: `${data.width}px`, left: `${map.left}px` }" :key="map.uuid">
                     <img :src="map.listViewIconTall">
                     <p>{{ map.displayName }}</p>
+                    <transition name="fade">
+                        <button v-if="map.current && isButtonVisible" ref="spinButton" @click="onSpin">Spin</button>
+                    </transition>
                 </div>
+
             </div>
-            <button v-if="isButtonVisible" @click="onSpin">Spin</button>
+            <!-- <span class="vertical-line"></span> -->
         </div>
 
 
@@ -195,7 +254,7 @@ const mapSelect = (map: Map) => {
 
 .inner-raffle-container {
     position: relative;
-    width: 80%;
+    width: calc(220px * 5 + 25px * 4);
     margin: 1rem;
     height: 40vh;
 
@@ -211,12 +270,11 @@ const mapSelect = (map: Map) => {
     left: 0;
     top: 5%;
     height: 90%;
-    display: flex;
     transition: transform 0.5s ease-in-out;
 }
 
 .raffle-item {
-    position: relative;
+    position: absolute;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -232,11 +290,13 @@ const mapSelect = (map: Map) => {
 }
 
 .raffle-item p {
+    margin: 0;
     position: absolute;
     color: var(--color-highlight);
     font-size: 1.5rem;
     font-weight: bold;
     top: 2rem;
+    text-shadow: 2px 2px 4px #fd455774;
 }
 
 .raffle-item img {
@@ -312,5 +372,26 @@ button {
 .map-item:hover .tooltip {
     visibility: visible;
     opacity: 1;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+    transition: opacity .5s;
+}
+
+.fade-enter,
+.fade-leave-to {
+    opacity: 0;
+}
+
+.vertical-line {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 2px;
+    height: 100%;
+    background-color: var(--color-highlight);
+    z-index: 0;
 }
 </style>
