@@ -25,7 +25,7 @@ watch(route, () => {
     </router-view>
 
 
-    <div class="footer">
+    <div v-if="route.name !== 'about'" class="footer">
       <p class="disclaimer">This is a fan made project and in no way associated with Valorant or Riot Games.</p>
       <p class="disclaimer">Created with ♥ by Flashrex</p>
     </div>
