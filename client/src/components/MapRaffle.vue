@@ -1,27 +1,46 @@
 <script setup lang="ts">
-import { nextTick, onMounted, ref } from 'vue';
+import { nextTick, onMounted, ref, watch } from 'vue';
 import type { Map } from '@/types/map';
 import axios from 'axios';
+import Errors from './Errors.vue';
+import { v4 as uuidv4 } from 'uuid';
+
+const errors = ref<string[]>([]);
 
 const isLoading = ref<boolean>(false);
 const maps = ref<Map[]>([]);
 const mapItems = ref<Map[]>([]);
+const spinning = ref<boolean>(false);
 
 const spinButton = ref<HTMLElement>();
 const isButtonVisible = ref<boolean>(true);
 
-const data = {
-    width: 220, //px
-    gap: 25, //px
+const data = ref({
+    width: 0, //px
+    containerWidth: 0, //px
+    gap: 0, //px
     transitionDuration: 10000, //ms
-    transitionUpdateSpeed: 1, //ms
-    maxMoveSpeed: 25, //px
-    minMoveSpeed: 1, //px
-}
+    maxMoveSpeed: 50, //px
+    minMoveSpeed: 2.5, //px
+})
 
 /** Initialization */
 onMounted(async () => {
     await loadMaps();
+
+    const screenWidth = 1920;
+    const baseWidth = 220;
+    const baseGap = 25;
+
+    data.value.width = (window.innerWidth / screenWidth) * baseWidth;
+    data.value.gap = (window.innerWidth / screenWidth) * baseGap;
+    data.value.containerWidth = (data.value.width * 5) + (data.value.gap * 4);
+
+    window.addEventListener('resize', () => {
+        data.value.width = (window.innerWidth / screenWidth) * baseWidth;
+        data.value.gap = (window.innerWidth / screenWidth) * baseGap;
+        data.value.containerWidth = (data.value.width * 5) + (data.value.gap * 4);
+    });
 })
 
 async function loadMaps() {
@@ -88,7 +107,9 @@ const addMapItems = () => {
 
     activeMaps.forEach((map, index) => {
         if (index === 2) map.current = true;
-        map.left = data.gap * index + (data.width * index);
+
+        map.key = generateKey();
+        map.left = data.value.gap * index + (data.value.width * index);
     });
 
     mapItems.value = [...activeMaps];
@@ -98,71 +119,104 @@ const addMapItems = () => {
 const onSpin = (e: MouseEvent) => {
     if (!maps.value || !mapItems.value) return;
 
+    if (!maps.value.some(map => map.selected)) {
+        errors.value = ['Please select at least one map.'];
+        return;
+    }
+
+    spinning.value = true;
+    errors.value = [];
+
     isButtonVisible.value = false;
 
     let ending = false;
-    let moveSpeed = data.minMoveSpeed;
+    let moveSpeed = data.value.minMoveSpeed;
+    let lastTime = 0;
+    let finished = false;
 
-    const interval = setInterval(() => {
-        mapItems.value?.forEach((map, index) => {
-            if (map.hidden || map.left === undefined) return;
+    const animate = (timestamp: number) => {
+        if (finished) return;
+        const deltaTime = timestamp - lastTime;
+        const fpsInterval = 1000 / 60; // 60 fps
 
-            if (ending) {
-                if (map.current && isCentered(map) && moveSpeed <= data.minMoveSpeed) {
-                    console.log('Winner:', map.displayName);
-                    clearInterval(interval);
-                    isButtonVisible.value = true;
-                    map.current = true;
+        if (deltaTime > fpsInterval) {
+            lastTime = timestamp - (deltaTime % fpsInterval);
 
-                    const activeMaps = mapItems.value?.filter(m => !m.hidden).sort((a, b) => a.left - b.left);
+            mapItems.value?.forEach((map, index) => {
+                if (update(map, ending, moveSpeed)) finished = true;
+            });
 
-                    if (activeMaps) {
-                        for (var i = 0; i < activeMaps?.length; i++) {
-                            activeMaps[i].left = data.gap * i + (data.width * i);
-                        }
-                    }
+            mapItems.value = mapItems.value.filter(map => !map.hidden);
 
-                    return;
-                }
+            if (!ending) {
+                if (moveSpeed < data.value.maxMoveSpeed) moveSpeed += 0.1;
+            } else {
+                if (moveSpeed >= data.value.minMoveSpeed) moveSpeed -= 0.1;
             }
-
-            map.left -= moveSpeed;
-
-            map.current = isInCenterArea(map);
-            if (map.left <= -data.width) {
-                hideMap(map);
-                addMap(nextMap());
-            }
-        });
-
-        mapItems.value = mapItems.value.filter(map => !map.hidden);
-
-        if (!ending) {
-            if (moveSpeed < data.maxMoveSpeed) moveSpeed += 0.1;
-        } else {
-            if (moveSpeed >= data.minMoveSpeed) moveSpeed -= 0.1;
         }
 
+        if (!finished || moveSpeed > data.value.minMoveSpeed) {
+            requestAnimationFrame(animate);
+        } else {
+            isButtonVisible.value = true;
+            spinning.value = false;
+        }
+    };
 
-    }, data.transitionUpdateSpeed);
+    requestAnimationFrame(animate);
 
     setTimeout(() => {
         ending = true;
-    }, data.transitionDuration);
+    }, data.value.transitionDuration);
+};
+
+const update = (map: Map, ending: boolean, moveSpeed: number): boolean => {
+    if (map.hidden || map.left === undefined) return false;
+
+    if (ending) {
+        if (map.current && isCentered(map) && moveSpeed <= data.value.minMoveSpeed) {
+            console.log('Winner:', map.displayName);
+            isButtonVisible.value = true;
+
+            const activeMaps = mapItems.value?.filter(m => !m.hidden).sort((a, b) => a.left - b.left);
+
+            if (activeMaps) {
+                for (var i = 0; i < activeMaps?.length; i++) {
+                    activeMaps[i].left = data.value.gap * i + (data.value.width * i);
+                }
+            }
+
+            return true;
+        }
+    }
+
+    map.left -= moveSpeed;
+
+    const isInCenter = isInCenterArea(map);
+
+    if (map.current != isInCenter) {
+        map.current = isInCenter;
+    }
+
+    if (map.left <= -data.value.width) {
+        hideMap(map);
+        addMap(nextMap());
+    }
+    return false;
 }
 
 const mapSelect = (map: Map) => {
-    if (!maps.value) return;
+    if (!maps.value || spinning.value) return;
     map.selected = !map.selected;
 }
 
 const isInCenterArea = (map: Map) => {
     if (!map.left) return false;
 
-    const cardMid = map.left + data.width / 2;
+    const cardMid = map.left + data.value.width / 2;
 
-    const min = (data.width * 2) + (data.gap * 2);
-    const max = (data.width * 3) + (data.gap * 2);
+    const min = (data.value.width * 2) + (data.value.gap * 2) + 10;
+    const max = (data.value.width * 3) + (data.value.gap * 2) - 10;
 
     //if ((cardMid > min && cardMid < max)) console.log(map.displayName, min, cardMid, max, (cardMid > min && cardMid < max));
     return cardMid > min && cardMid < max;
@@ -171,9 +225,9 @@ const isInCenterArea = (map: Map) => {
 const isCentered = (map: Map) => {
     if (!map.left) return false;
 
-    const cardMid = map.left + data.width / 2;
-    const min = (data.width * 2) + (data.gap * 2) + (data.width / 2) - 10;
-    const max = (data.width * 2) + (data.gap * 2) + (data.width / 2) + 10;
+    const cardMid = map.left + data.value.width / 2;
+    const min = (data.value.width * 2) + (data.value.gap * 2) + (data.value.width / 2) - 10;
+    const max = (data.value.width * 2) + (data.value.gap * 2) + (data.value.width / 2) + 10;
 
     return cardMid > min && cardMid < max;
 }
@@ -194,29 +248,52 @@ const nextMap = () => {
 const hideMap = (map: Map) => {
     if (!mapItems.value) return;
 
-    map.left = -data.width;
+    map.left = -data.value.width;
     map.hidden = true;
 }
 
 const addMap = (next: Map) => {
     if (next) {
-        next.left = highestX() + data.width + data.gap;
+        next.key = generateKey();
+        next.left = highestX() + data.value.width + data.value.gap;
         next.hidden = false;
         mapItems.value = [...mapItems.value, next];
     }
 }
+
+const selectAll = () => {
+    if (!maps.value || spinning.value) return;
+    maps.value.forEach(map => map.selected = true);
+}
+
+const deselectAll = () => {
+    if (!maps.value || spinning.value) return;
+    maps.value.forEach(map => map.selected = false);
+}
+
+const generateKey = () => {
+    return uuidv4();
+}
+
+watch(data.value, () => {
+    if (!mapItems.value) return;
+    mapItems.value.forEach((map, index) => {
+        map.left = data.value.gap * index + (data.value.width * index);
+    });
+})
 </script>
 
 <template>
     <div class="raffle-container">
-        <div v-if="!isLoading" class="inner-raffle-container">
-            <div class="raffle" :style="{ gap: `${data.gap}px`, transitionDuration: `${data.transitionDuration}ms` }">
+        <div v-if="!isLoading" class="inner-raffle-container" :style="{ width: `${data.containerWidth}px` }">
+            <div class="raffle">
                 <div v-for="(map, index) in mapItems" class="raffle-item" :class="map.current ? 'current' : ''"
-                    :style="{ width: `${data.width}px`, left: `${map.left}px` }" :key="map.uuid">
+                    :style="{ width: `${data.width}px`, left: `${map.left}px` }" :key="map.key">
                     <img :src="map.listViewIconTall">
                     <p>{{ map.displayName }}</p>
                     <transition name="fade">
-                        <button v-if="map.current && isButtonVisible" ref="spinButton" @click="onSpin">Spin</button>
+                        <button class="button-spin" v-if="map.current && isButtonVisible" ref="spinButton"
+                            @click="onSpin">Spin</button>
                     </transition>
                 </div>
 
@@ -226,12 +303,17 @@ const addMap = (next: Map) => {
 
 
         <div class="selection-container">
+            <div style="display: flex; gap: 1rem;">
+                <button @click="selectAll">Select All</button>
+                <button @click="deselectAll">Deselect All</button>
+            </div>
             <div class="flex-wrap">
                 <div v-for="map in maps" :key="map.uuid" class="map-item" :class="{ selected: map.selected }"
                     @click="mapSelect(map)">
                     <p>{{ map.displayName }}</p>
-                    <span class="tooltip">Click to disable</span>
+                    <span class="tooltip">{{ map.selected ? "Click to disable" : "Click to enable" }}</span>
                 </div>
+                <Errors v-if="errors" :errors="errors" />
             </div>
         </div>
     </div>
@@ -254,7 +336,6 @@ const addMap = (next: Map) => {
 
 .inner-raffle-container {
     position: relative;
-    width: calc(220px * 5 + 25px * 4);
     margin: 1rem;
     height: 40vh;
 
@@ -305,7 +386,7 @@ const addMap = (next: Map) => {
     object-fit: cover;
 }
 
-button {
+.button-spin {
     position: absolute;
     margin: 0 auto;
     bottom: 2rem;
@@ -320,7 +401,7 @@ button {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    flex-wrap: wrap;
+    gap: 1rem;
 }
 
 .current {
@@ -329,6 +410,7 @@ button {
 }
 
 .flex-wrap {
+    max-width: 50%;
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
@@ -393,5 +475,11 @@ button {
     height: 100%;
     background-color: var(--color-highlight);
     z-index: 0;
+}
+
+@media (max-width: 1024px) {
+    .flex-wrap {
+        max-width: 100%;
+    }
 }
 </style>

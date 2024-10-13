@@ -3,17 +3,18 @@
 </script>
 
 <template>
-  <section class="content">
-  </section>
+  <div class="content">
+    <h1>Coming soon...</h1>
+    <ProgressSpinner />
+  </div>
 </template>
 
 <style scoped>
 .content {
-  height: inherit;
-  width: inherit;
-
   display: flex;
   justify-content: center;
   align-items: center;
+  flex-direction: column;
+  gap: 2rem;
 }
 </style>

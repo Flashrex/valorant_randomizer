@@ -32,3 +32,11 @@ button {
   border-radius: 0.25rem;
   cursor: pointer;
 }
+
+.link {
+  color: var(--color-highlight);
+}
+
+h1 {
+  font-weight: bold;
+}

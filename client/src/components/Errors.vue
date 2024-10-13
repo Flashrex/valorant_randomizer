@@ -1,0 +1,27 @@
+<script setup lang="ts">
+
+const props = defineProps({
+    errors: Array<String>
+});
+
+</script>
+
+<template>
+    <ul v-if="props.errors">
+        <li v-for="(error, index) in errors" :key="index">{{ error }}</li>
+    </ul>
+</template>
+
+<style scoped>
+ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+li {
+    color: rgb(226, 52, 52);
+    font-size: 0.8rem;
+    margin: 0.2rem;
+}
+</style>

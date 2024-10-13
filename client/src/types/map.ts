@@ -1,4 +1,5 @@
 export type Map = {
+  key: string;
   current?: boolean;
   selected?: boolean;
   uuid: string;

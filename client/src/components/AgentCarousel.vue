@@ -5,6 +5,7 @@ import { computed, onMounted, ref, type ComputedRef } from 'vue';
 
 import selectedImageSrc from '@/assets/icons/selected.png';
 import notSelectedImageSrc from '@/assets/icons/not_selected.png';
+import Errors from './Errors.vue';
 
 const agents = ref([] as Agent[]);
 const currentAgent = ref(null as Agent | null);
@@ -17,7 +18,7 @@ const noAnimation = ref(false);
 const selectedImage = ref(new Image());
 const notSelectedImage = ref(new Image());
 
-
+const errors = ref<string[]>([]);
 
 onMounted(async () => {
   selectedImage.value.src = selectedImageSrc
@@ -44,6 +45,11 @@ let isRolling = false;
 
 function rollAgents(duration: number = 5000, speed: number = 10) {
   if (isRolling) return;
+
+  if (agents.value.filter(agent => agent.selected).length === 0) {
+    errors.value = ['No agents selected'];
+    return;
+  }
 
   //dont roll just select random agent
   if (noAnimation.value) {
@@ -98,11 +104,13 @@ async function requestAgentsFromServer() {
 }
 
 function agentSelect(agent: Agent) {
+  if (isRolling) return;
   agent.selected = !agent.selected;
   console.log(agent);
 }
 
 function selectAllAgents(select = true) {
+  if (isRolling) return;
   agents.value.forEach(agent => agent.selected = select);
 }
 
@@ -134,6 +142,7 @@ const groupedAgents: ComputedRef<GroupedAgents> = computed(() => {
       </div>
     </div>
 
+    <Errors v-if="errors" :errors="errors" />
 
     <button @click="rollAgents()">Randomize</button>
 
@@ -157,7 +166,7 @@ const groupedAgents: ComputedRef<GroupedAgents> = computed(() => {
           <div v-for="agent in group" :key="agent.uuid" class="agent-item">
             <img class="agent-icon" :class="{ selected: agent.selected }" :src="agent.displayIcon"
               :alt="agent.displayName" @click="agentSelect(agent)">
-            <span class="tooltip">Click to disable</span>
+            <span class="tooltip">{{ agent.selected ? "Click to disable" : "Click to enable" }}</span>
           </div>
         </div>
       </div>
@@ -176,7 +185,7 @@ const groupedAgents: ComputedRef<GroupedAgents> = computed(() => {
   gap: 0.5rem;
   padding: 0.5rem;
 
-  overflow-x: hidden;
+  overflow: hidden;
 
   display: flex;
   flex-direction: column;

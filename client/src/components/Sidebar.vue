@@ -75,6 +75,7 @@ function isSelected(page: string) {
     display: flex;
     flex-direction: column;
     align-items: center;
+    transition: width 0.5s;
 }
 
 .menu-toggle {
@@ -142,5 +143,11 @@ ul {
 
 .selected>span {
     color: var(--color-highlight);
+}
+
+@media (max-width: 1024px) {
+    .sidebar {
+        width: 15vw;
+    }
 }
 </style>
