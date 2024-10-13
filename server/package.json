@@ -1,0 +1,29 @@
+{
+  "name": "valorant-randomizer-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "tsc && node dist/app.js",
+    "build": "tsc"
+  },
+  "author": "Flashrex",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/csurf": "^1.11.5",
+    "@types/dotenv": "^8.2.0",
+    "@types/express": "^5.0.0",
+    "@types/mysql": "^2.15.26",
+    "concurrently": "^6.5.1",
+    "ts-node": "^10.4.0",
+    "typescript": "^5.6.3"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "csurf": "^1.11.0",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.1",
+    "mysql": "^2.18.1"
+  }
+}
