@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import Carousel from '../components/Carousel.vue';
+import Carousel from '../components/AgentCarousel.vue';
 
 </script>
 
@@ -11,12 +11,9 @@ import Carousel from '../components/Carousel.vue';
 
 <style scoped>
 .content {
+  width: 100%;
   height: inherit;
-  width: inherit;
-
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin: 1rem;
+  justify-content: center;
 }
 </style>

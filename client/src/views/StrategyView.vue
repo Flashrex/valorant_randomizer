@@ -4,7 +4,6 @@
 
 <template>
   <section class="content">
-    <h1>StrategySelector</h1>
   </section>
 </template>
 
@@ -12,5 +11,9 @@
 .content {
   height: inherit;
   width: inherit;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 </style>

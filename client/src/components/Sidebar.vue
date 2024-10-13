@@ -9,6 +9,7 @@ const props = defineProps({
 function isSelected(page: string) {
     return props.selected === page;
 }
+
 </script>
 
 <template>
@@ -25,7 +26,7 @@ function isSelected(page: string) {
                             <img class="icon" src="../assets/icons/agent.svg" alt="agent_icon">
                             <span class="icon-text">Agents</span>
                         </div>
-                        
+
                     </router-link>
                 </li>
                 <li>
@@ -45,14 +46,6 @@ function isSelected(page: string) {
                     </router-link>
                 </li>
                 <li>
-                    <router-link to="/settings">
-                        <div class="link-container" :class="{ selected: isSelected('settings') }">
-                            <img class="icon" src="../assets/icons/settings.svg" alt="settings_icon">
-                            <span class="icon-text">Settings</span>
-                        </div>
-                    </router-link>
-                </li>
-                <li>
                     <router-link to="/about">
                         <div class="link-container" :class="{ selected: isSelected('about') }">
                             <img class="icon" src="../assets/icons/about.svg" alt="home_icon">
@@ -67,11 +60,12 @@ function isSelected(page: string) {
 
 <style scoped>
 * {
-    --icon-size: 30px;
+    --icon-size: 3.5rem;
 }
 
 .sidebar {
-    width: 15vw;
+    position: relative;
+    width: 5vw;
     height: 100vh;
     background: var(--color-background-soft);
     opacity: 0.8;
@@ -81,6 +75,21 @@ function isSelected(page: string) {
     display: flex;
     flex-direction: column;
     align-items: center;
+}
+
+.menu-toggle {
+    position: absolute;
+    top: 1rem;
+    width: 2rem;
+    aspect-ratio: 1/1;
+    filter: invert(100%);
+    margin: 0;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.menu-toggle:hover {
+    cursor: pointer;
 }
 
 .logo-container {
@@ -101,13 +110,14 @@ ul {
     padding: 0;
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 2rem;
 }
 
 .link-container {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0;
 }
 
 .link-container:hover {
@@ -117,47 +127,20 @@ ul {
 }
 
 .icon {
-    width: var(--icon-size);
+    width: calc(var(--icon-size) * 0.75);
     aspect-ratio: 1/1;
     filter: invert(100%);
 }
 
 .icon-text {
-    display: none;
+    font-size: 0.8rem;
 }
 
-.selected > img {
+.selected>img {
     filter: brightness(0) saturate(100%) invert(46%) sepia(36%) saturate(5351%) hue-rotate(326deg) brightness(96%) contrast(108%);
 }
 
-.selected > span {
+.selected>span {
     color: var(--color-highlight);
-}
-
-@media (min-width: 1024px) {
-    .logo {
-        width: calc(var(--icon-size) * 3);
-    }
-
-    .sidebar {
-        width: 15vw;
-    }
-
-    .icon {
-        width: calc(var(--icon-size) * 1.2);
-    }
-
-    .icon-text {
-        font-size: 1.2rem;
-        display: inline;
-    }
-
-    ul {
-        gap: 2rem;
-    }
-
-    .link-container {
-        gap: 1rem;
-    }
 }
 </style>

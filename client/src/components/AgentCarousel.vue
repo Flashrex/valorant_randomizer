@@ -167,7 +167,8 @@ const groupedAgents: ComputedRef<GroupedAgents> = computed(() => {
 
 <style scoped>
 .carousel-container {
-  width: 90%;
+  margin: 1rem;
+  width: 100%;
   background-color: var(--color-background-soft);
   position: relative;
   border-radius: 5px;
@@ -179,16 +180,15 @@ const groupedAgents: ComputedRef<GroupedAgents> = computed(() => {
 
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
 }
 
 .carousel-item {
+  margin-top: 1rem;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  overflow: hidden;
 }
 
 .img-container {
@@ -333,6 +333,10 @@ label {
 }
 
 @media (min-width: 1024px) {
+  .carousel-container {
+    width: 50vw;
+  }
+
   .agent-portrait {
     height: 40vh;
   }

@@ -16,9 +16,18 @@ watch(route, () => {
 <template>
   <Sidebar :selected="selection" />
   <main>
-    <RouterView />
+    <router-view v-slot="{ Component }">
+      <transition name="fade" mode="out-in">
+        <keep-alive>
+          <component :is="Component" />
+        </keep-alive>
+      </transition>
+    </router-view>
+
+
     <div class="footer">
       <p class="disclaimer">This is a fan made project and in no way associated with Valorant or Riot Games.</p>
+      <p class="disclaimer">Created with ♥ by Flashrex</p>
     </div>
   </main>
 </template>
@@ -42,5 +51,15 @@ watch(route, () => {
   font-size: 0.8rem;
   width: 80vw;
   color: var(--color-text);
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.25s;
+}
+
+.fade-enter,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>
