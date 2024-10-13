@@ -31,10 +31,10 @@ export default class Server {
         this.app = express();
 
         this.app.use(cors({
-            origin: 'http://localhost'
+            origin: 'http://localhost:5173'
         }));
 
-        this.app.use(csurf());
+        // this.app.use(csurf());
 
         this.app.use((req, res, next) => {
             Logger.log('app', `Request received: ${req.method} ${req.url}`);
