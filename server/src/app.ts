@@ -12,12 +12,9 @@ Database.instance.connect().then(() => {
   //updating maps
   updateMaps();
 
-}).catch(() => {
-  Logger.error('app', 'Error connecting to database');
-  
-  setTimeout(() => {
-    process.exit(1);
-  }, 3000);
+}).catch((error) => {
+  Logger.error('app', error);
+  process.exit(1);
 });
 
 

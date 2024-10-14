@@ -58,7 +58,7 @@ function rollAgents(duration: number = 5000, speed: number = 10) {
   }
 
   const decreaseRate = 5;
-  let interval: number | undefined;
+  let interval: NodeJS.Timeout | undefined;
 
   const filteredAgents = agents.value.filter(agent => agent.selected);
 

@@ -19,7 +19,7 @@ const data = ref({
     width: 0, //px
     containerWidth: 0, //px
     gap: 0, //px
-    transitionDuration: 10000, //ms
+    transitionDuration: 7500, //ms
     maxMoveSpeed: 50, //px
     minMoveSpeed: 2.5, //px
 })
@@ -86,7 +86,9 @@ function shuffleArray<T>(array: T[]): void {
 async function fetchMaps(): Promise<Map[]> {
     let maps = [] as Map[];
 
-    await axios.get('http://localhost:1337/api/maps')
+    const url = "https://localhost:1337/api";
+
+    await axios.get(`${url}/maps`)
         .then((response) => {
             maps = response.data.map((map: Map) => ({ ...map, selected: true, current: false }));
         })

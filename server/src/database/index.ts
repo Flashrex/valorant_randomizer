@@ -10,13 +10,15 @@ export default class Database {
 
     constructor() {
 
-        this.connection = mysql.createConnection({
-            host: ENV.DATABASE_HOST || 'localhost',
+        const config = {
+            host: ENV.DATABASE_HOST,
             port: ENV.DATABASE_PORT ? parseInt(ENV.DATABASE_PORT) : 3306,
-            user: ENV.DATABASE_USER || 'root',
-            password: ENV.DATABASE_PASSWORD || '',
-            database: ENV.DATABASE_NAME || 'valomizer',
-        });
+            user: ENV.DATABASE_USER,
+            password: ENV.DATABASE_PASSWORD,
+            database: ENV.DATABASE_NAME,
+        };
+
+        this.connection = mysql.createConnection(config);
     }
 
     public static get instance() : Database {
@@ -39,7 +41,7 @@ export default class Database {
                         reject(err);
                     }
                 } else {
-                    Logger.log('database', `Connected to database [\x1b[34m${process.env.DB_HOST}:${process.env.DB_PORT}\x1b[0m]`);
+                    Logger.log('database', `Connected to database [\x1b[34m${ENV.DATABASE_HOST}:${ENV.DATABASE_PORT}\x1b[0m]`);
                     resolve();
                 }
             });

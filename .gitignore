@@ -28,3 +28,6 @@ coverage
 *.sw?
 
 *.tsbuildinfo
+.env
+server.cert
+server.key

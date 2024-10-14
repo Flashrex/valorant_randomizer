@@ -1,3 +1,5 @@
+import * as https from 'https';
+import * as fs from 'fs';
 import express from "express";
 import cors from 'cors';
 import csurf from 'csurf';
@@ -18,7 +20,7 @@ export default class Server {
     private started: boolean = false;
 
     private constructor() {
-        this.port = parseInt(ENV.APP_PORT || '3000');
+        this.port = parseInt(ENV.APP_PORT || '1337');
     }
 
     public static get instance() : Server {
@@ -31,7 +33,7 @@ export default class Server {
         this.app = express();
 
         this.app.use(cors({
-            origin: 'http://localhost:5173'
+            origin: `http://localhost:${ENV.FRONTEND_PORT}`,
         }));
 
         // this.app.use(csurf());
@@ -43,8 +45,13 @@ export default class Server {
 
         this.app.use("/api/maps", mapsRouter);
 
-        this.app.listen(this.port, () => {
-            Logger.log('app', `Server started at [\x1b[34mhttp://localhost:${this.port}\x1b[0m]`);
+        const options = {
+            cert: fs.readFileSync('/etc/ssl/certs/server.cert'),
+            key: fs.readFileSync('/etc/ssl/private/server.key')
+        };
+
+        https.createServer(options, this.app).listen(this.port, () => {
+            Logger.log('app', `Server listening at port \x1b[34m${this.port}\x1b[0m`);
             this.started = true;
         });
     }
