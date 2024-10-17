@@ -9,9 +9,6 @@ COPY package*.json ./
 
 RUN npm install
 
-COPY server.cert /etc/ssl/certs/server.cert
-COPY server.key /etc/ssl/private/server.key
-
 COPY . .
 
 COPY wait-for.sh /wait-for.sh

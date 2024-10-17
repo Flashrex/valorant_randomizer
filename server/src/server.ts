@@ -45,12 +45,7 @@ export default class Server {
 
         this.app.use("/api/maps", mapsRouter);
 
-        const options = {
-            cert: fs.readFileSync('/etc/ssl/certs/server.cert'),
-            key: fs.readFileSync('/etc/ssl/private/server.key')
-        };
-
-        https.createServer(options, this.app).listen(this.port, () => {
+        this.app.listen(this.port, () => {
             Logger.log('app', `Server listening at port \x1b[34m${this.port}\x1b[0m`);
             this.started = true;
         });
