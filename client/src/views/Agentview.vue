@@ -15,5 +15,6 @@ import Carousel from '../components/AgentCarousel.vue';
   height: inherit;
   display: flex;
   justify-content: center;
+  user-select: none;
 }
 </style>

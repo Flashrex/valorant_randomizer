@@ -16,5 +16,6 @@
   align-items: center;
   flex-direction: column;
   gap: 2rem;
+  user-select: none;
 }
 </style>
