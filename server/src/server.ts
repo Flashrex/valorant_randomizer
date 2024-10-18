@@ -1,5 +1,3 @@
-import * as https from 'https';
-import * as fs from 'fs';
 import express from "express";
 import cors from 'cors';
 import csurf from 'csurf';
@@ -56,6 +54,6 @@ export default class Server {
     }
 
     restart() {
-        // Restart server
+        throw new NotImplementedError();
     }
 }
