@@ -2,24 +2,8 @@
 
 This is a fanmade valorant application and is not in any way associated with Riot Games.
 
-## Recommended IDE Setup
+## Setup
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+This application is using docker.
+You need to set up docker in your local environment.
 
-## Project Setup
-
-```sh
-npm install
-```
-
-### Compile and Hot-Reload for Development
-
-```sh
-npm run dev
-```
-
-### Type-Check, Compile and Minify for Production
-
-```sh
-npm run build
-```

@@ -9,6 +9,10 @@ COPY package*.json ./
 
 RUN npm install
 
+# Copy SSL certificates
+COPY ./.ssh/fullchain1.pem /etc/ssl/certs/fullchain.pem
+COPY ./.ssh/privkey1.pem /etc/ssl/private/privkey.pem
+
 COPY . .
 
 COPY wait-for.sh /wait-for.sh

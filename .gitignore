@@ -29,5 +29,5 @@ coverage
 
 *.tsbuildinfo
 .env
-server.cert
-server.key
+
+/server/.ssh/*

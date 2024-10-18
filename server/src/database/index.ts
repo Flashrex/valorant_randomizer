@@ -12,7 +12,7 @@ export default class Database {
 
         const config = {
             host: ENV.DATABASE_HOST,
-            port: ENV.DATABASE_PORT ? parseInt(ENV.DATABASE_PORT) : 3306,
+            port: ENV.DATABASE_PORT ? parseInt(ENV.DATABASE_PORT) : 4406,
             user: ENV.DATABASE_USER,
             password: ENV.DATABASE_PASSWORD,
             database: ENV.DATABASE_NAME,
