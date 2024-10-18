@@ -8,8 +8,8 @@
       <h1>About this website</h1>
       <p>This website enables you to select a random agent, map, or strategy for your next Valorant game.</p>
       <br>
-      <p>Data utilized here is provided by <a class="link" href="https://valorantapi.com"
-          target="_blank">valorantapi.com</a>.</p>
+      <p>Data utilized here is provided by <a class="link" href="https://valorant-api.com"
+          target="_blank">valorant-api.com</a>.</p>
     </section>
 
     <section>
