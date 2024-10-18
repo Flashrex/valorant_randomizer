@@ -303,10 +303,6 @@ watch(data.value, () => {
 
 
         <div class="selection-container">
-            <div style="display: flex; gap: 1rem;">
-                <button @click="selectAll">Select All</button>
-                <button @click="deselectAll">Deselect All</button>
-            </div>
             <div class="flex-wrap">
                 <div v-for="map in maps" :key="map.uuid" class="map-item" :class="{ selected: map.selected }"
                     @click="mapSelect(map)">
@@ -314,6 +310,10 @@ watch(data.value, () => {
                     <span class="tooltip">{{ map.selected ? "Click to disable" : "Click to enable" }}</span>
                 </div>
                 <Errors v-if="errors" :errors="errors" />
+            </div>
+            <div style="display: flex; gap: 1rem;">
+                <button @click="selectAll">Select All</button>
+                <button @click="deselectAll">Deselect All</button>
             </div>
         </div>
     </div>
