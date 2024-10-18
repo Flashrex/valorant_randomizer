@@ -9,6 +9,10 @@ import ENV from './misc/environment';
 import mapsRouter from './maps/index';
 import { NotImplementedError } from "./errors/NotImplementedError";
 
+const allowedOrigins = [
+    `https://valomizer.net`,
+    `http://localhost:3000`,
+];
 
 export default class Server {
 
@@ -32,9 +36,17 @@ export default class Server {
 
         this.app = express();
 
-        this.app.use(cors({
-            origin: `https://valomizer.net`,
-        }));
+        const corsOptions = {
+            origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+                if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+                    callback(null, true);
+                } else {
+                    callback(new Error('Not allowed by CORS'));
+                }
+            }
+        };
+
+        this.app.use(cors(corsOptions));
 
         const options = {
             cert: fs.readFileSync('/etc/ssl/certs/fullchain.pem'),
