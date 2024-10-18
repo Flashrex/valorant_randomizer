@@ -1,8 +1,8 @@
 import * as https from 'https';
+import * as http from 'http';
 import * as fs from 'fs';
 import express from "express";
 import cors from 'cors';
-import csurf from 'csurf';
 import Logger from './misc/logger';
 import ENV from './misc/environment';
 
@@ -11,14 +11,14 @@ import { NotImplementedError } from "./errors/NotImplementedError";
 
 const allowedOrigins = [
     `https://valomizer.net`,
-    `http://localhost:3000`,
+    `http://localhost:8081`,
 ];
 
 export default class Server {
 
     private static _instance: Server;
 
-    private port: number = 3000;
+    private port: number;
     private app?: express.Application;
 
     private started: boolean = false;
@@ -35,6 +35,12 @@ export default class Server {
         if(this.started) return;
 
         this.app = express();
+
+        this.app.use((req, res, next) => {
+            const now = new Date().toISOString();
+            Logger.log('app', `[${now}] ${req.method} ${req.url}`);
+            next();
+        });
 
         const corsOptions = {
             origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
@@ -53,10 +59,16 @@ export default class Server {
             key: fs.readFileSync('/etc/ssl/private/privkey.pem')
         };
 
-        https.createServer(options, this.app).listen(this.port, () => {
-            Logger.log('app', `Server listening at port [\x1b[34m${this.port}\x1b[0m]`);
-            this.started = true;
-        });
+        if(ENV.ENVIRONMENT === 'dev') {
+            http.createServer(this.app).listen(this.port, () => {
+                Logger.log('app', `HTTP Server listening at port [\x1b[34m${this.port}\x1b[0m]`);
+            });
+        } else {
+            https.createServer(options, this.app).listen(this.port, () => {
+                Logger.log('app', `Server listening at port [\x1b[34m${this.port}\x1b[0m]`);
+                this.started = true;
+            });
+        }
 
         this.app.use("/api/maps", mapsRouter);
     }

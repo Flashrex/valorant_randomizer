@@ -9,6 +9,7 @@ const ENV = {
     DATABASE_USER: process.env.MYSQL_USER,
     DATABASE_PASSWORD: process.env.MYSQL_PASSWORD,
     DATABASE_NAME: process.env.MYSQL_DATABASE,
+    ENVIRONMENT: process.env.ENVIRONMENT,
 };
 
 Object.entries(ENV).forEach(([key, value]) => {

@@ -12,6 +12,10 @@ RUN npm run build
 
 RUN npm install -g serve
 
+# Development
 EXPOSE 5000
 
-CMD ["serve", "-s", "dist"]
+# Production
+EXPOSE 3000
+
+CMD ["sh", "-c", "if [ \"$NODE_ENV\" = \"dev\" ]; then npm run dev; else serve -s dist; fi"]
