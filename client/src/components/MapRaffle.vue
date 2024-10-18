@@ -19,7 +19,7 @@ const data = ref({
     width: 0, //px
     containerWidth: 0, //px
     gap: 0, //px
-    transitionDuration: 7500, //ms
+    transitionDuration: 5000, //ms
     maxMoveSpeed: 50, //px
     minMoveSpeed: 2.5, //px
 })
