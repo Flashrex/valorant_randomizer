@@ -86,9 +86,7 @@ function shuffleArray<T>(array: T[]): void {
 async function fetchMaps(): Promise<Map[]> {
     let maps = [] as Map[];
 
-    const url = "http://localhost:1337/api";
-
-    await axios.get(`${url}/maps`)
+    await axios.get(`${import.meta.env.VITE_APP_API_URL}/maps`)
         .then((response) => {
             maps = response.data.map((map: Map) => ({ ...map, selected: true, current: false }));
         })
