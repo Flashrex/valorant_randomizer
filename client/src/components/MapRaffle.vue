@@ -57,6 +57,11 @@ async function loadMaps() {
     maps.value = result;
     localStorage.setItem('maps', JSON.stringify(maps.value));
 
+    maps.value.forEach((map) => {
+        const img = new Image();
+        img.src = map.listViewIconTall;
+    });
+
     //waiting for nextTick to ensure that the DOM is updated
     await nextTick();
     if (!maps.value) return;
@@ -86,7 +91,7 @@ function shuffleArray<T>(array: T[]): void {
 async function fetchMaps(): Promise<Map[]> {
     let maps = [] as Map[];
 
-    console.log(import.meta.env.VITE_APP_API_URL);
+    //console.log(import.meta.env.VITE_APP_API_URL);
 
     await axios.get(`${import.meta.env.VITE_APP_API_URL}/maps`)
         .then((response) => {
