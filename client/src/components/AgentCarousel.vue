@@ -51,6 +51,8 @@ function rollAgents(duration: number = 5000, speed: number = 10) {
     return;
   }
 
+  errors.value = [];
+
   //dont roll just select random agent
   if (noAnimation.value) {
     currentAgent.value = agents.value[Math.floor(Math.random() * agents.value.length)];
