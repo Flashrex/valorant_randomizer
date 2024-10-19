@@ -22,7 +22,7 @@ I would recommend using Visual Studio Code.
 6. Build and start the containers using Docker Compose:
 
    ```sh
-   docker compose up frontend-dev backend db
+   docker compose up frontend-dev backend db -d
    ```
 
 7. Open `http://localhost:8081` and start development.
@@ -38,7 +38,7 @@ I would recommend using Visual Studio Code.
 6. Build and start the containers using Docker Compose:
 
    ```sh
-   docker compose up frontend-prod backend db
+   docker compose up frontend-prod backend db -d
    ```
 
 ## Creating self signed ssl files
