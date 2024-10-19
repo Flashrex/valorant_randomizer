@@ -114,6 +114,11 @@ function selectAllAgents(select = true) {
   agents.value.forEach(agent => agent.selected = select);
 }
 
+function selectGroup(roleName: string) {
+  if (isRolling) return;
+  agents.value.forEach(agent => agent.selected = agent.role.displayName === roleName);
+}
+
 
 const groupedAgents: ComputedRef<GroupedAgents> = computed(() => {
   return agents.value.reduce((groups: GroupedAgents, agent: Agent) => {
@@ -129,39 +134,41 @@ const groupedAgents: ComputedRef<GroupedAgents> = computed(() => {
 
 <template>
   <div class="carousel-container">
-    <div v-if="currentAgent" class="carousel-item">
-      <span class="img-container">
-        <img class="agent-bg" :src="currentAgent.background" :alt="currentAgent.displayName">
-        <img class="agent-portrait" :src="currentAgent.fullPortrait" :alt="currentAgent.displayName">
-      </span>
+    <div class="agent-container">
+      <div v-if="currentAgent" class="carousel-item">
+        <span class="img-container">
+          <img class="agent-bg" :src="currentAgent.background" :alt="currentAgent.displayName">
+          <img class="agent-portrait" :src="currentAgent.fullPortrait" :alt="currentAgent.displayName">
+        </span>
 
-      <h2>{{ currentAgent.displayName }}</h2>
-      <div class="role-container">
-        <img :src="currentAgent.role?.displayIcon" :alt="currentAgent.role?.displayName">
-        <p>{{ currentAgent.role?.displayName }}</p>
+        <h2>{{ currentAgent.displayName }}</h2>
+        <div class="role-container">
+          <img :src="currentAgent.role?.displayIcon" :alt="currentAgent.role?.displayName">
+          <p>{{ currentAgent.role?.displayName }}</p>
+        </div>
       </div>
-    </div>
 
-    <Errors v-if="errors" :errors="errors" />
+      <Errors v-if="errors" :errors="errors" />
 
-    <button @click="rollAgents()">Randomize</button>
-
-    <div class="settings-container">
+      <button @click="rollAgents()">Randomize</button>
       <div class="flex">
         <label>Skip Animation</label>
         <img v-if="noAnimation" class="sel-icon" :src="selectedImage.src" alt="selected"
           @click="noAnimation = !noAnimation">
         <img v-else class="sel-icon" :src="notSelectedImage.src" alt="not_selected" @click="noAnimation = !noAnimation">
       </div>
-
-      <div class="flex">
-        <button @click="selectAllAgents()">Select All</button>
-        <button @click="selectAllAgents(false)">Deselect All</button>
-      </div>
     </div>
 
-    <div class="agent-container">
-      <div v-for="(group, roleName) in groupedAgents" :key="roleName">
+
+
+    <div class="flex-column">
+      <div v-for="(group, roleName) in groupedAgents" :key="roleName" class="settings-container">
+        <div class="flex">
+          <h3>{{ roleName }}</h3>
+          <div class="flex">
+            <button @click="selectGroup(roleName.toString())">Select Group</button>
+          </div>
+        </div>
         <div class="flex-wrap">
           <div v-for="agent in group" :key="agent.uuid" class="agent-item">
             <img class="agent-icon" :class="{ selected: agent.selected }" :src="agent.displayIcon"
@@ -170,14 +177,20 @@ const groupedAgents: ComputedRef<GroupedAgents> = computed(() => {
           </div>
         </div>
       </div>
+
+      <div class="flex">
+        <button @click="selectAllAgents()">Select All</button>
+        <button @click="selectAllAgents(false)">Deselect All</button>
+      </div>
     </div>
+
   </div>
 </template>
 
 <style scoped>
 .carousel-container {
   margin: 1rem;
-  width: 100%;
+  width: 50vw;
   background-color: var(--color-background-soft);
   position: relative;
   border-radius: 5px;
@@ -188,7 +201,6 @@ const groupedAgents: ComputedRef<GroupedAgents> = computed(() => {
   overflow: hidden;
 
   display: flex;
-  flex-direction: column;
   align-items: center;
 }
 
@@ -196,8 +208,8 @@ const groupedAgents: ComputedRef<GroupedAgents> = computed(() => {
   margin-top: 1rem;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
+  justify-content: left;
+  align-items: left;
 }
 
 .img-container {
@@ -207,7 +219,7 @@ const groupedAgents: ComputedRef<GroupedAgents> = computed(() => {
 
 .agent-portrait {
   position: relative;
-  height: 200px;
+  height: 40vh;
   opacity: 1;
   z-index: 2;
 }
@@ -228,6 +240,12 @@ h2 {
   font-size: 1.5rem;
   color: var(--color-text);
   margin-top: 1rem;
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
 }
 
 .role-container {
@@ -254,7 +272,7 @@ button {
 .settings-container {
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: start;
   flex-direction: column;
   gap: 0.5rem;
 }
@@ -289,7 +307,7 @@ label {
 }
 
 .agent-icon {
-  width: 25px;
+  width: 50px;
   aspect-ratio: 1/1;
   cursor: pointer;
   filter: grayscale(100%);
@@ -304,6 +322,12 @@ label {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
+}
+
+.flex-column {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
 .flex-wrap {
@@ -341,21 +365,21 @@ label {
   opacity: 1;
 }
 
-@media (min-width: 1024px) {
+@media (max-width: 1024px) {
   .carousel-container {
-    width: 50vw;
+    width: 100%;
   }
 
   .agent-portrait {
-    height: 40vh;
+    height: 200px;
   }
 
   .agent-icon {
-    width: 50px;
+    width: 25px;
   }
 
-  button {
-    width: 20%;
+  .carousel-container {
+    flex-direction: column;
   }
 }
 </style>
