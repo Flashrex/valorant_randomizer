@@ -15,6 +15,9 @@ const spinning = ref<boolean>(false);
 const spinButton = ref<HTMLElement>();
 const isButtonVisible = ref<boolean>(true);
 
+const optionExcludeMaps = ref<boolean>(false);
+var usedMaps = JSON.parse(localStorage.getItem("usedMaps") || "[]");
+
 const data = ref({
     width: 0, //px
     containerWidth: 0, //px
@@ -54,7 +57,11 @@ async function loadMaps() {
 
     if (!result) return;
 
-    maps.value = result;
+    maps.value = result.map(map => ({
+        ...map,
+        selected: !usedMaps.includes(map.displayName),
+        current: false
+    }));
     localStorage.setItem('maps', JSON.stringify(maps.value));
 
     //waiting for nextTick to ensure that the DOM is updated
@@ -178,6 +185,15 @@ const update = (map: Map, ending: boolean, moveSpeed: number): boolean => {
     if (ending) {
         if (map.current && isCentered(map) && moveSpeed <= data.value.minMoveSpeed) {
             console.log('Winner:', map.displayName);
+            if (optionExcludeMaps.value) {
+                if (!usedMaps.includes(map.displayName)) {
+                    usedMaps.push(map.displayName);
+                    localStorage.setItem("usedMaps", JSON.stringify(usedMaps));
+                }
+                const mapRef = maps.value.find(m => m.displayName === map.displayName);
+                if (mapRef) mapRef.selected = false;
+            }
+
             isButtonVisible.value = true;
 
             const activeMaps = mapItems.value?.filter(m => !m.hidden).sort((a, b) => a.left - b.left);
@@ -266,11 +282,18 @@ const addMap = (next: Map) => {
 const selectAll = () => {
     if (!maps.value || spinning.value) return;
     maps.value.forEach(map => map.selected = true);
+    resetUsedMaps();
 }
 
 const deselectAll = () => {
     if (!maps.value || spinning.value) return;
     maps.value.forEach(map => map.selected = false);
+    resetUsedMaps();
+}
+
+const resetUsedMaps = () => {
+    usedMaps = [];
+    localStorage.setItem("usedMaps", JSON.stringify(usedMaps));
 }
 
 const generateKey = () => {
@@ -306,7 +329,7 @@ watch(data.value, () => {
 
         <div class="selection-container">
             <div class="flex-wrap">
-                <div v-for="map in maps" :key="map.uuid" class="map-item" :class="{ selected: map.selected }"
+                <div v-for="map in maps" :key="map.key" class="map-item" :class="{ selected: map.selected }"
                     @click="mapSelect(map)">
                     <p>{{ map.displayName }}</p>
                     <span class="tooltip">{{ map.selected ? "Click to disable" : "Click to enable" }}</span>
@@ -316,6 +339,14 @@ watch(data.value, () => {
             <div style="display: flex; gap: 1rem;">
                 <button @click="selectAll">Select All</button>
                 <button @click="deselectAll">Deselect All</button>
+            </div>
+            <div class="option-container">
+                <input
+                    type="checkbox"
+                    id="excludeMaps"
+                    v-model="optionExcludeMaps"
+                />
+                <label for="excludeMaps">Exclude rolled map from future rolls</label>
             </div>
         </div>
     </div>
@@ -483,5 +514,17 @@ watch(data.value, () => {
     .flex-wrap {
         max-width: 100%;
     }
+}
+
+.option-container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.option-container label {
+  user-select: none;
+  cursor: pointer;
 }
 </style>
