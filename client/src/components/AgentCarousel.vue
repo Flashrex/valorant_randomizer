@@ -53,16 +53,18 @@ function rollAgents(duration: number = 5000, speed: number = 10) {
 
   errors.value = [];
 
-  //dont roll just select random agent
+  const filteredAgents = agents.value.filter(agent => agent.selected);
+
+  // Don't roll just select random agent
   if (noAnimation.value) {
-    currentAgent.value = agents.value[Math.floor(Math.random() * agents.value.length)];
+    const randomIndex = Math.floor(Math.random() * filteredAgents.length);
+    currentAgent.value = filteredAgents[randomIndex];
     return;
   }
 
   const decreaseRate = 5;
   let interval: NodeJS.Timeout | undefined;
 
-  const filteredAgents = agents.value.filter(agent => agent.selected);
 
   const startInterval = () => {
     interval = setInterval(() => {
