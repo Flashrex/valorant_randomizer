@@ -68,4 +68,8 @@ section {
 .buy-coffee {
   margin-top: 1rem;
 }
+
+p {
+  text-align: center;
+}
 </style>
