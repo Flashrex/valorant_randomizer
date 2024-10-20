@@ -111,8 +111,6 @@ const addMapItems = () => {
 
     const activeMaps = maps.value.filter(map => map.selected).splice(0, data.value.cardCount+1);
 
-    console.log(data.value.cardCount+1);
-
     shuffleArray(activeMaps);
 
     activeMaps.forEach((map, index) => {
