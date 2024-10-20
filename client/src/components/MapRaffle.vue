@@ -25,6 +25,7 @@ var optionExcludeMaps = ref<boolean>(JSON.parse(localStorage.getItem("optionExcl
 var usedMaps = JSON.parse(localStorage.getItem("usedMaps") || "[]");
 
 const data = ref({
+    cardCount: 5,
     width: 0, //px
     containerWidth: 0, //px
     gap: 0, //px
@@ -38,20 +39,12 @@ onMounted(async () => {
     selectedImage.value.src = selectedImageSrc
     notSelectedImage.value.src = notSelectedImageSrc;
 
+    updateDimensions();
     await loadMaps();
-
-    const screenWidth = 1920;
-    const baseWidth = 220;
-    const baseGap = 25;
-
-    data.value.width = (window.innerWidth / screenWidth) * baseWidth;
-    data.value.gap = (window.innerWidth / screenWidth) * baseGap;
-    data.value.containerWidth = (data.value.width * 5) + (data.value.gap * 4);
+    addMapItems();
 
     window.addEventListener('resize', () => {
-        data.value.width = (window.innerWidth / screenWidth) * baseWidth;
-        data.value.gap = (window.innerWidth / screenWidth) * baseGap;
-        data.value.containerWidth = (data.value.width * 5) + (data.value.gap * 4);
+        if(updateDimensions()) addMapItems();
     });
 })
 
@@ -76,9 +69,6 @@ async function loadMaps() {
     //waiting for nextTick to ensure that the DOM is updated
     await nextTick();
     if (!maps.value) return;
-
-    //adding initial items
-    addMapItems();
 }
 
 function shuffleArray<T>(array: T[]): void {
@@ -119,12 +109,14 @@ const addMapItems = () => {
     if (!maps.value) return;
     if (!mapItems.value) mapItems.value = [];
 
-    const activeMaps = maps.value.filter(map => map.selected).splice(0, 6);
+    const activeMaps = maps.value.filter(map => map.selected).splice(0, data.value.cardCount+1);
+
+    console.log(data.value.cardCount+1);
 
     shuffleArray(activeMaps);
 
     activeMaps.forEach((map, index) => {
-        if (index === 2) map.current = true;
+        if (index === Math.floor(data.value.cardCount / 2)) map.current = true;
 
         map.key = generateKey();
         map.left = data.value.gap * index + (data.value.width * index);
@@ -246,10 +238,9 @@ const isInCenterArea = (map: Map) => {
 
     const cardMid = map.left + data.value.width / 2;
 
-    const min = (data.value.width * 2) + (data.value.gap * 2) + 10;
-    const max = (data.value.width * 3) + (data.value.gap * 2) - 10;
+    const min = (data.value.containerWidth / 2) - (data.value.width / 2);
+    const max = (data.value.containerWidth / 2) + (data.value.width / 2);
 
-    //if ((cardMid > min && cardMid < max)) console.log(map.displayName, min, cardMid, max, (cardMid > min && cardMid < max));
     return cardMid > min && cardMid < max;
 }
 
@@ -257,10 +248,11 @@ const isCentered = (map: Map) => {
     if (!map.left) return false;
 
     const cardMid = map.left + data.value.width / 2;
-    const min = (data.value.width * 2) + (data.value.gap * 2) + (data.value.width / 2) - 10;
-    const max = (data.value.width * 2) + (data.value.gap * 2) + (data.value.width / 2) + 10;
 
-    return cardMid > min && cardMid < max;
+    const min = data.value.containerWidth / 2 - 10;
+    const max = data.value.containerWidth / 2 + 10;
+
+    return cardMid >= min && cardMid <= max;
 }
 
 const highestX = () => {
@@ -312,6 +304,27 @@ const deselectAll = () => {
 
 const generateKey = () => {
     return uuidv4();
+}
+
+const updateDimensions = () => {
+    const screenWidth = window.innerWidth;
+    const baseWidth = 220;
+    const baseGap = 25;
+    
+    let reloadMaps = false;
+
+    const newCardCount = screenWidth < 1024 ? 3 : 5;
+
+    if(data.value.cardCount !== newCardCount) {
+        data.value.cardCount = newCardCount;
+        reloadMaps = true;
+    }
+    
+    data.value.width = (window.innerWidth / screenWidth) * baseWidth;
+    data.value.gap = (window.innerWidth / screenWidth) * baseGap;
+    data.value.containerWidth = (data.value.width * data.value.cardCount) + (data.value.gap * (data.value.cardCount - 1));
+
+    return reloadMaps;
 }
 
 watch(optionExcludeMaps, () => {
@@ -463,21 +476,6 @@ watch(data.value, () => {
     filter: grayscale(0%);
 }
 
-.flex {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-}
-
-.flex-wrap {
-    max-width: 50%;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 0.5rem;
-}
-
 .map-item {
     position: relative;
     background-color: var(--color-background-soft);
@@ -541,6 +539,10 @@ watch(data.value, () => {
 @media (max-width: 1024px) {
     .flex-wrap {
         max-width: 100%;
+    }
+
+    .selection-container {
+        width: 100%;
     }
 }
 
