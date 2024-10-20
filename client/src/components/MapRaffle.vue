@@ -26,9 +26,9 @@ var usedMaps = JSON.parse(localStorage.getItem("usedMaps") || "[]");
 
 const data = ref({
     cardCount: 5,
-    width: 0, //px
+    width: 220, //px
     containerWidth: 0, //px
-    gap: 0, //px
+    gap: 25, //px
     transitionDuration: 5000, //ms
     maxMoveSpeed: 50, //px
     minMoveSpeed: 2.5, //px
@@ -92,8 +92,6 @@ function shuffleArray<T>(array: T[]): void {
 async function fetchMaps(): Promise<Map[]> {
     let maps = [] as Map[];
 
-    console.log(import.meta.env.VITE_APP_API_URL);
-
     await axios.get(`${import.meta.env.VITE_APP_API_URL}/maps`)
         .then((response) => {
             maps = response.data.map((map: Map) => ({ ...map, selected: true, current: false }));
@@ -108,6 +106,8 @@ async function fetchMaps(): Promise<Map[]> {
 const addMapItems = () => {
     if (!maps.value) return;
     if (!mapItems.value) mapItems.value = [];
+
+    mapItems.value.forEach(map => map.current = false);
 
     const activeMaps = maps.value.filter(map => map.selected).splice(0, data.value.cardCount+1);
 
@@ -305,21 +305,15 @@ const generateKey = () => {
 }
 
 const updateDimensions = () => {
-    const screenWidth = window.innerWidth;
-    const baseWidth = 220;
-    const baseGap = 25;
     
     let reloadMaps = false;
 
-    const newCardCount = screenWidth < 1024 ? 3 : 5;
-
+    const newCardCount =  window.innerWidth < 1024 ? 3 : 5;
     if(data.value.cardCount !== newCardCount) {
         data.value.cardCount = newCardCount;
         reloadMaps = true;
     }
     
-    data.value.width = (window.innerWidth / screenWidth) * baseWidth;
-    data.value.gap = (window.innerWidth / screenWidth) * baseGap;
     data.value.containerWidth = (data.value.width * data.value.cardCount) + (data.value.gap * (data.value.cardCount - 1));
 
     return reloadMaps;
