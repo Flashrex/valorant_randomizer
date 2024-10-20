@@ -13,9 +13,7 @@ RUN npm install
 COPY ./.ssh/fullchain1.pem /etc/ssl/certs/fullchain.pem
 COPY ./.ssh/privkey1.pem /etc/ssl/private/privkey.pem
 
+# Copy the rest of the application files
 COPY . .
 
-COPY wait-for.sh /wait-for.sh
-RUN chmod +x /wait-for.sh
-
-CMD [ "/wait-for.sh", "db", "3306", "npm", "start" ]
+CMD [ "npm", "start" ]
