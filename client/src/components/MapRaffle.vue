@@ -5,6 +5,9 @@ import axios from 'axios';
 import Errors from './Errors.vue';
 import { v4 as uuidv4 } from 'uuid';
 
+import selectedImageSrc from '@/assets/icons/selected.png';
+import notSelectedImageSrc from '@/assets/icons/not_selected.png';
+
 const errors = ref<string[]>([]);
 
 const isLoading = ref<boolean>(false);
@@ -14,6 +17,9 @@ const spinning = ref<boolean>(false);
 
 const spinButton = ref<HTMLElement>();
 const isButtonVisible = ref<boolean>(true);
+
+const selectedImage = ref(new Image());
+const notSelectedImage = ref(new Image());
 
 var optionExcludeMaps = ref<boolean>(JSON.parse(localStorage.getItem("optionExcludeMaps") || "false"));
 var usedMaps = JSON.parse(localStorage.getItem("usedMaps") || "[]");
@@ -29,6 +35,9 @@ const data = ref({
 
 /** Initialization */
 onMounted(async () => {
+    selectedImage.value.src = selectedImageSrc
+    notSelectedImage.value.src = notSelectedImageSrc;
+
     await loadMaps();
 
     const screenWidth = 1920;
@@ -355,13 +364,10 @@ watch(data.value, () => {
                 <button @click="selectAll">Select All</button>
                 <button @click="deselectAll">Deselect All</button>
             </div>
-            <div class="option-container">
-                <input
-                    type="checkbox"
-                    id="excludeMaps"
-                    v-model="optionExcludeMaps"
-                />
-                <label for="excludeMaps">Exclude rolled map from future rolls</label>
+            <div class="flex options-container" @click="optionExcludeMaps = !optionExcludeMaps">
+                <img v-if="optionExcludeMaps" class="sel-icon" :src="selectedImage.src" alt="selected">
+                <img v-else class="sel-icon" :src="notSelectedImage.src" alt="not_selected">
+                <label>Exclude rolled map from future rolls</label>
             </div>
         </div>
     </div>
@@ -457,6 +463,13 @@ watch(data.value, () => {
     filter: grayscale(0%);
 }
 
+.flex {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
 .flex-wrap {
     max-width: 50%;
     display: flex;
@@ -531,15 +544,13 @@ watch(data.value, () => {
     }
 }
 
-.option-container {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-top: 1rem;
+.sel-icon {
+    width: 1.5rem;
+    height: 1.5rem;
 }
 
-.option-container label {
-  user-select: none;
-  cursor: pointer;
+.options-container,
+.options-container * {
+    cursor: pointer;
 }
 </style>
