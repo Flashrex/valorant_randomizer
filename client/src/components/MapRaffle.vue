@@ -15,7 +15,7 @@ const spinning = ref<boolean>(false);
 const spinButton = ref<HTMLElement>();
 const isButtonVisible = ref<boolean>(true);
 
-const optionExcludeMaps = ref<boolean>(false);
+var optionExcludeMaps = ref<boolean>(JSON.parse(localStorage.getItem("optionExcludeMaps") || "false"));
 var usedMaps = JSON.parse(localStorage.getItem("usedMaps") || "[]");
 
 const data = ref({
@@ -59,7 +59,7 @@ async function loadMaps() {
 
     maps.value = result.map(map => ({
         ...map,
-        selected: !usedMaps.includes(map.displayName),
+        selected: optionExcludeMaps.value ? !usedMaps.includes(map.displayName) : true,
         current: false
     }));
     localStorage.setItem('maps', JSON.stringify(maps.value));
@@ -226,6 +226,10 @@ const update = (map: Map, ending: boolean, moveSpeed: number): boolean => {
 const mapSelect = (map: Map) => {
     if (!maps.value || spinning.value) return;
     map.selected = !map.selected;
+    if (optionExcludeMaps.value) {
+        usedMaps = maps.value.filter(map => !map.selected).map(map => map.displayName);
+        localStorage.setItem("usedMaps", JSON.stringify(usedMaps));
+    }
 }
 
 const isInCenterArea = (map: Map) => {
@@ -282,23 +286,34 @@ const addMap = (next: Map) => {
 const selectAll = () => {
     if (!maps.value || spinning.value) return;
     maps.value.forEach(map => map.selected = true);
-    resetUsedMaps();
+    if (optionExcludeMaps.value) {
+        usedMaps = [];
+        localStorage.setItem("usedMaps", JSON.stringify(usedMaps));
+    }
 }
 
 const deselectAll = () => {
     if (!maps.value || spinning.value) return;
     maps.value.forEach(map => map.selected = false);
-    resetUsedMaps();
-}
-
-const resetUsedMaps = () => {
-    usedMaps = [];
-    localStorage.setItem("usedMaps", JSON.stringify(usedMaps));
+    if (optionExcludeMaps.value) {
+        usedMaps = maps.value.map(map => map.displayName);
+        localStorage.setItem("usedMaps", JSON.stringify(usedMaps));
+    }
 }
 
 const generateKey = () => {
     return uuidv4();
 }
+
+watch(optionExcludeMaps, () => {
+    if (optionExcludeMaps.value) {
+        usedMaps = maps.value.filter(map => !map.selected).map(map => map.displayName);
+    } else {
+        usedMaps = [];
+    }
+    localStorage.setItem("usedMaps", JSON.stringify(usedMaps));
+    localStorage.setItem("optionExcludeMaps", JSON.stringify(optionExcludeMaps.value));
+})
 
 watch(data.value, () => {
     if (!mapItems.value) return;
