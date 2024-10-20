@@ -130,7 +130,13 @@ ul {
 .icon {
     width: calc(var(--icon-size) * 0.75);
     aspect-ratio: 1/1;
-    filter: invert(100%);
+    filter: invert(15%);
+}
+
+@media (prefers-color-scheme: dark) {
+    .icon {
+        filter: invert(100%);
+    }
 }
 
 .icon-text {

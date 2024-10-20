@@ -40,3 +40,16 @@ button {
 h1 {
   font-weight: bold;
 }
+
+.sel-icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  cursor: pointer;
+  filter: invert(80%);
+}
+
+@media (prefers-color-scheme: dark) {
+  .sel-icon {
+    filter: invert(0%);
+  }
+}
