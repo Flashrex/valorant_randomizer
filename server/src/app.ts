@@ -17,8 +17,9 @@ Database.instance.connect().then(() => {
   process.exit(1);
 });
 
-
-
+process.on("unhandledRejection", (err: any) => {
+  Logger.error('Unhandled Exception', err);
+});
 
 
 
