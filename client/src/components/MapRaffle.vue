@@ -5,6 +5,9 @@ import axios from 'axios';
 import Errors from './Errors.vue';
 import { v4 as uuidv4 } from 'uuid';
 
+import selectedImageSrc from '@/assets/icons/selected.png';
+import notSelectedImageSrc from '@/assets/icons/not_selected.png';
+
 const errors = ref<string[]>([]);
 
 const isLoading = ref<boolean>(false);
@@ -14,6 +17,12 @@ const spinning = ref<boolean>(false);
 
 const spinButton = ref<HTMLElement>();
 const isButtonVisible = ref<boolean>(true);
+
+const selectedImage = ref(new Image());
+const notSelectedImage = ref(new Image());
+
+var optionExcludeMaps = ref<boolean>(JSON.parse(localStorage.getItem("optionExcludeMaps") || "false"));
+var usedMaps = JSON.parse(localStorage.getItem("usedMaps") || "[]");
 
 const data = ref({
     width: 0, //px
@@ -26,6 +35,9 @@ const data = ref({
 
 /** Initialization */
 onMounted(async () => {
+    selectedImage.value.src = selectedImageSrc
+    notSelectedImage.value.src = notSelectedImageSrc;
+
     await loadMaps();
 
     const screenWidth = 1920;
@@ -54,7 +66,11 @@ async function loadMaps() {
 
     if (!result) return;
 
-    maps.value = result;
+    maps.value = result.map(map => ({
+        ...map,
+        selected: optionExcludeMaps.value ? !usedMaps.includes(map.displayName) : true,
+        current: false
+    }));
     localStorage.setItem('maps', JSON.stringify(maps.value));
 
     //waiting for nextTick to ensure that the DOM is updated
@@ -178,6 +194,15 @@ const update = (map: Map, ending: boolean, moveSpeed: number): boolean => {
     if (ending) {
         if (map.current && isCentered(map) && moveSpeed <= data.value.minMoveSpeed) {
             console.log('Winner:', map.displayName);
+            if (optionExcludeMaps.value) {
+                if (!usedMaps.includes(map.displayName)) {
+                    usedMaps.push(map.displayName);
+                    localStorage.setItem("usedMaps", JSON.stringify(usedMaps));
+                }
+                const mapRef = maps.value.find(m => m.displayName === map.displayName);
+                if (mapRef) mapRef.selected = false;
+            }
+
             isButtonVisible.value = true;
 
             const activeMaps = mapItems.value?.filter(m => !m.hidden).sort((a, b) => a.left - b.left);
@@ -210,6 +235,10 @@ const update = (map: Map, ending: boolean, moveSpeed: number): boolean => {
 const mapSelect = (map: Map) => {
     if (!maps.value || spinning.value) return;
     map.selected = !map.selected;
+    if (optionExcludeMaps.value) {
+        usedMaps = maps.value.filter(map => !map.selected).map(map => map.displayName);
+        localStorage.setItem("usedMaps", JSON.stringify(usedMaps));
+    }
 }
 
 const isInCenterArea = (map: Map) => {
@@ -266,16 +295,34 @@ const addMap = (next: Map) => {
 const selectAll = () => {
     if (!maps.value || spinning.value) return;
     maps.value.forEach(map => map.selected = true);
+    if (optionExcludeMaps.value) {
+        usedMaps = [];
+        localStorage.setItem("usedMaps", JSON.stringify(usedMaps));
+    }
 }
 
 const deselectAll = () => {
     if (!maps.value || spinning.value) return;
     maps.value.forEach(map => map.selected = false);
+    if (optionExcludeMaps.value) {
+        usedMaps = maps.value.map(map => map.displayName);
+        localStorage.setItem("usedMaps", JSON.stringify(usedMaps));
+    }
 }
 
 const generateKey = () => {
     return uuidv4();
 }
+
+watch(optionExcludeMaps, () => {
+    if (optionExcludeMaps.value) {
+        usedMaps = maps.value.filter(map => !map.selected).map(map => map.displayName);
+    } else {
+        usedMaps = [];
+    }
+    localStorage.setItem("usedMaps", JSON.stringify(usedMaps));
+    localStorage.setItem("optionExcludeMaps", JSON.stringify(optionExcludeMaps.value));
+})
 
 watch(data.value, () => {
     if (!mapItems.value) return;
@@ -306,7 +353,7 @@ watch(data.value, () => {
 
         <div class="selection-container">
             <div class="flex-wrap">
-                <div v-for="map in maps" :key="map.uuid" class="map-item" :class="{ selected: map.selected }"
+                <div v-for="map in maps" :key="map.key" class="map-item" :class="{ selected: map.selected }"
                     @click="mapSelect(map)">
                     <p>{{ map.displayName }}</p>
                     <span class="tooltip">{{ map.selected ? "Click to disable" : "Click to enable" }}</span>
@@ -316,6 +363,11 @@ watch(data.value, () => {
             <div style="display: flex; gap: 1rem;">
                 <button @click="selectAll">Select All</button>
                 <button @click="deselectAll">Deselect All</button>
+            </div>
+            <div class="flex options-container" @click="optionExcludeMaps = !optionExcludeMaps">
+                <img v-if="optionExcludeMaps" class="sel-icon" :src="selectedImage.src" alt="selected">
+                <img v-else class="sel-icon" :src="notSelectedImage.src" alt="not_selected">
+                <label>Exclude rolled map from future rolls</label>
             </div>
         </div>
     </div>
@@ -411,6 +463,13 @@ watch(data.value, () => {
     filter: grayscale(0%);
 }
 
+.flex {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
 .flex-wrap {
     max-width: 50%;
     display: flex;
@@ -483,5 +542,15 @@ watch(data.value, () => {
     .flex-wrap {
         max-width: 100%;
     }
+}
+
+.sel-icon {
+    width: 1.5rem;
+    height: 1.5rem;
+}
+
+.options-container,
+.options-container * {
+    cursor: pointer;
 }
 </style>
