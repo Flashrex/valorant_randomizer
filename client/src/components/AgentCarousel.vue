@@ -237,6 +237,13 @@ const groupedAgents: ComputedRef<GroupedAgents> = computed(() => {
   opacity: 0.25;
   object-fit: cover;
   z-index: 1;
+  filter: invert(100%);
+}
+
+@media (prefers-color-scheme: dark) {
+  .agent-bg {
+    filter: invert(0%);
+  }
 }
 
 h2 {
@@ -267,6 +274,13 @@ h2 {
 .role-container>img {
   width: 1rem;
   height: 1rem;
+  filter: invert(100%);
+}
+
+@media (prefers-color-scheme: dark) {
+  .role-container>img {
+    filter: invert(0%);
+  }
 }
 
 button {
@@ -293,12 +307,6 @@ label {
   color: var(--color-text);
   text-align: center;
   font-size: 1rem;
-}
-
-.sel-icon {
-  width: 1.5rem;
-  height: 1.5rem;
-  cursor: pointer;
 }
 
 .agent-container {
