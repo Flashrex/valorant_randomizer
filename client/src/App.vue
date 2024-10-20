@@ -34,9 +34,13 @@ watch(route, () => {
 </template>
 
 <style scoped>
+
+main {
+  max-height: 100vh;
+  overflow-y: auto;
+}
+
 .footer {
-  position: fixed;
-  bottom: 0;
   height: 10vh;
   width: 85vw;
   color: white;
