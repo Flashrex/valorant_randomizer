@@ -5,6 +5,9 @@ import axios from 'axios';
 import Errors from './Errors.vue';
 import { v4 as uuidv4 } from 'uuid';
 
+import cardChange from '@/assets/sounds/cardflip.mp3';
+import raffleEnd from '@/assets/sounds/message1.mp3';
+
 const errors = ref<string[]>([]);
 
 const isLoading = ref<boolean>(false);
@@ -162,6 +165,7 @@ const onSpin = (e: MouseEvent) => {
         } else {
             isButtonVisible.value = true;
             spinning.value = false;
+            playSound('raffleEnd');
         }
     };
 
@@ -198,6 +202,7 @@ const update = (map: Map, ending: boolean, moveSpeed: number): boolean => {
 
     if (map.current != isInCenter) {
         map.current = isInCenter;
+        playSound('cardChange');
     }
 
     if (map.left <= -data.value.width) {
@@ -283,6 +288,18 @@ watch(data.value, () => {
         map.left = data.value.gap * index + (data.value.width * index);
     });
 })
+
+const playSound = (soundName: string) => {
+    switch (soundName) {
+        case "cardChange":
+            new Audio(cardChange).play();
+            break;
+
+        case "raffleEnd":
+            new Audio(raffleEnd).play();
+            break;
+    }
+}
 </script>
 
 <template>
