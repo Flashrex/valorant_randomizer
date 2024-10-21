@@ -28,7 +28,8 @@ watch(route, () => {
     <div v-if="route.name !== 'about'" class="footer">
       <p class="disclaimer">This is a fan made project and in no way associated with Valorant or Riot Games.</p>
       <p class="disclaimer">Created with ♥ by <a class="link" href="https://github.com/Flashrex/" target="_blank"
-          rel="noopener noreferrer">Flashrex</a></p>
+          rel="noopener noreferrer">Flashrex</a> and <a class="link" href="https://github.com/zlyfer/" target="_blank"
+          rel="noopener noreferrer">Zlyfer</a></p>
     </div>
   </main>
 </template>
