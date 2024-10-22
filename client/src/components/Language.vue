@@ -31,6 +31,13 @@ onMounted(() => {
     if (storedLocale) {
         locale.value = storedLocale;
     }
+
+    document.addEventListener('click', (event) => {
+        const target = event.target as HTMLElement;
+        if (!target.closest('.select-menu') && !target.closest('.language-selector')) {
+            menuVisible.value = false;
+        }
+    });
 });
 
 </script>
