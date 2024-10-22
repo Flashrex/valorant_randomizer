@@ -38,6 +38,13 @@ async function loadAgents() {
     return;
   }
 
+  agents.value.forEach((agent) => {
+    const img = new Image();
+    img.src = agent.fullPortrait;
+    const bg = new Image();
+    bg.src = agent.background;
+  });
+
   await requestAgentsFromServer();
 }
 
@@ -330,25 +337,8 @@ label {
   filter: grayscale(0%);
 }
 
-.flex {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-}
-
 .flex-column {
-  display: flex;
-  flex-direction: column;
   gap: 1rem;
-}
-
-.flex-wrap {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: center;
-  gap: 0.5rem;
 }
 
 .agent-item {

@@ -155,5 +155,17 @@ ul {
     .sidebar {
         width: 15vw;
     }
+
+    .logo {
+        padding: 0 0.25rem;
+    }
+
+    .icon-text {
+        font-size: 0.6rem;
+    }
+
+    .icon {
+        width: calc(var(--icon-size) * 0.75);
+    }
 }
 </style>
