@@ -18,6 +18,6 @@ import MapRaffle from '@/components/MapRaffle.vue';
   justify-content: center;
   align-items: flex-start;
   margin: 1rem;
-  user-select: none;
+  user-select: none
 }
 </style>

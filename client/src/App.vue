@@ -2,6 +2,7 @@
 import { RouterView, useRoute } from 'vue-router'
 import Sidebar from './components/Sidebar.vue';
 import { ref, watch } from 'vue';
+import Language from './components/Language.vue';
 
 const selection = ref('');
 
@@ -16,6 +17,8 @@ watch(route, () => {
 <template>
   <Sidebar :selected="selection" />
   <main>
+    <Language></Language>
+
     <router-view v-slot="{ Component }">
       <transition name="fade" mode="out-in">
         <keep-alive>
@@ -26,16 +29,16 @@ watch(route, () => {
 
 
     <div v-if="route.name !== 'about'" class="footer">
-      <p class="disclaimer">This is a fan made project and in no way associated with Valorant or Riot Games.</p>
-      <p class="disclaimer">Created with ♥ by <a class="link" href="https://github.com/Flashrex/" target="_blank"
-          rel="noopener noreferrer">Flashrex</a> and <a class="link" href="https://github.com/zlyfer/" target="_blank"
-          rel="noopener noreferrer">zlyfer</a></p>
+      <p class="disclaimer">{{ $t('This is a fan made project and in no way associated with Valorant or Riot Games.') }}
+      </p>
+      <p class="disclaimer">{{ $t('Created with ♥ by') }} <a class="link" href="https://github.com/Flashrex/"
+          target="_blank" rel="noopener noreferrer">Flashrex</a> {{ $t('And') }} <a class="link"
+          href="https://github.com/zlyfer/" target="_blank" rel="noopener noreferrer">zlyfer</a></p>
     </div>
   </main>
 </template>
 
 <style scoped>
-
 main {
   max-height: 100vh;
   overflow-y: auto;
