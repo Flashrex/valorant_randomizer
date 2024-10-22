@@ -4,18 +4,22 @@
 
 <template>
   <div class="content">
-    <h1>Coming soon...</h1>
-    <ProgressSpinner />
+    <div class="flex-column">
+      <h1>Coming soon...</h1>
+      <ProgressSpinner />
+    </div>
   </div>
 </template>
 
 <style scoped>
 .content {
+  width: 100%;
+  height: inherit;
+
   display: flex;
   justify-content: center;
   align-items: center;
-  flex-direction: column;
-  gap: 2rem;
+  margin: 1rem;
   user-select: none;
 }
 </style>
