@@ -172,7 +172,7 @@ const groupedAgents: ComputedRef<GroupedAgents> = computed(() => {
 
 
 
-    <div class="flex-column">
+    <div class="select-container flex-column">
       <div v-for="(group, roleName) in groupedAgents" :key="roleName" class="settings-container">
         <div class="flex">
           <h3>{{ roleName }}</h3>
@@ -223,6 +223,13 @@ const groupedAgents: ComputedRef<GroupedAgents> = computed(() => {
 .img-container {
   position: relative;
   background-color: transparent;
+}
+
+.select-container {
+  overflow: auto;
+  overflow-x: hidden;
+
+  justify-content: start;
 }
 
 .agent-portrait {
