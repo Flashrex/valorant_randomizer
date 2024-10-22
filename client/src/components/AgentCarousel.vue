@@ -195,9 +195,7 @@ const groupedAgents: ComputedRef<GroupedAgents> = computed(() => {
 .carousel-container {
   margin: 1rem;
   width: 50vw;
-  background-color: var(--color-background-soft);
   position: relative;
-  border-radius: 5px;
 
   gap: 0.5rem;
   padding: 0.5rem;
@@ -316,6 +314,10 @@ label {
   flex-direction: column;
   gap: 0.2rem;
   margin-top: 1rem;
+  background-color: var(--color-background-soft);
+  border-radius: 5px;
+  margin: 1rem;
+  padding: 1rem;
 }
 
 .agent-icon {
