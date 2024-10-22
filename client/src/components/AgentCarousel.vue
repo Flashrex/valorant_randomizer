@@ -399,5 +399,9 @@ label {
   .carousel-container {
     flex-direction: column;
   }
+
+  .select-container {
+    justify-content: start;
+  }
 }
 </style>
