@@ -335,7 +335,7 @@ watch(optionExcludeMaps, () => {
                 <div v-for="map in mapItems" class="raffle-item" :class="map.current ? 'current' : ''"
                     :style="{ width: `${data.width}px`, left: `${map.left}px` }" :key="map.key">
                     <img :src="map.listViewIconTall">
-                    <p>{{ map.displayName }}</p>
+                    <p class="map-name">{{ map.displayName }}</p>
                     <transition name="fade">
                         <button class="button-spin" v-if="map.current && isButtonVisible" ref="spinButton"
                             @click="onSpin">{{ $t('Spin') }}</button>
@@ -434,6 +434,10 @@ watch(optionExcludeMaps, () => {
     width: 100%;
     height: 100%;
     object-fit: cover;
+}
+
+.map-name {
+    font-family: 'ValorantFont', sans-serif;
 }
 
 .button-spin {
