@@ -189,9 +189,11 @@ const groupedAgents: ComputedRef<GroupedAgents> = computed(() => {
         </div>
       </div>
 
-      <div class="flex">
-        <button @click="selectAllAgents()">Select All</button>
-        <button @click="selectAllAgents(false)">Deselect All</button>
+      <div class="button-container">
+        <div class="flex">
+          <button @click="selectAllAgents()">Select All</button>
+          <button @click="selectAllAgents(false)">Deselect All</button>
+        </div>
       </div>
     </div>
 
@@ -229,7 +231,7 @@ const groupedAgents: ComputedRef<GroupedAgents> = computed(() => {
   overflow: auto;
   overflow-x: hidden;
 
-  justify-content: start;
+  align-items: start;
 }
 
 .agent-portrait {
@@ -292,6 +294,12 @@ h2 {
   .role-container>img {
     filter: invert(0%);
   }
+}
+
+.button-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
 }
 
 button {
