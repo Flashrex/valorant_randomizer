@@ -39,12 +39,14 @@ onMounted(async () => {
     selectedImage.value.src = selectedImageSrc
     notSelectedImage.value.src = notSelectedImageSrc;
 
-    updateDimensions();
     await loadMaps();
+
+    updateDimensions();
     addMapItems();
 
     window.addEventListener('resize', () => {
-        if(updateDimensions()) addMapItems();
+        if (spinning.value) return;
+        if (updateDimensions()) addMapItems();
     });
 })
 
@@ -65,10 +67,6 @@ async function loadMaps() {
         current: false
     }));
     localStorage.setItem('maps', JSON.stringify(maps.value));
-
-    //waiting for nextTick to ensure that the DOM is updated
-    await nextTick();
-    if (!maps.value) return;
 }
 
 function shuffleArray<T>(array: T[]): void {
@@ -105,22 +103,27 @@ async function fetchMaps(): Promise<Map[]> {
 
 const addMapItems = () => {
     if (!maps.value) return;
-    if (!mapItems.value) mapItems.value = [];
+    mapItems.value = [];
 
-    mapItems.value.forEach(map => map.current = false);
-
-    const activeMaps = maps.value.filter(map => map.selected).splice(0, data.value.cardCount+1);
+    const activeMaps = maps.value.filter(map => map.selected).splice(0, data.value.cardCount + 1);
 
     shuffleArray(activeMaps);
 
-    activeMaps.forEach((map, index) => {
-        if (index === Math.floor(data.value.cardCount / 2)) map.current = true;
-
-        map.key = generateKey();
-        map.left = data.value.gap * index + (data.value.width * index);
-    });
+    resetMaps(activeMaps);
 
     mapItems.value = [...activeMaps];
+}
+
+const resetMaps = (maps: Map[]) => {
+    if (!maps) return;
+
+    maps.forEach((map, index) => {
+        if (index === Math.floor(data.value.cardCount / 2)) map.current = true;
+        else map.current = false;
+        map.key = generateKey();
+        map.left = data.value.gap * index + (data.value.width * index);
+        map.hidden = false;
+    });
 }
 
 /** Selection */
@@ -196,17 +199,11 @@ const update = (map: Map, ending: boolean, moveSpeed: number): boolean => {
             isButtonVisible.value = true;
 
             const activeMaps = mapItems.value?.filter(m => !m.hidden).sort((a, b) => a.left - b.left);
-
-            if (activeMaps) {
-                for (var i = 0; i < activeMaps?.length; i++) {
-                    activeMaps[i].left = data.value.gap * i + (data.value.width * i);
-                }
-            }
+            resetMaps(activeMaps);
 
             return true;
         }
     }
-
     map.left -= moveSpeed;
 
     const isInCenter = isInCenterArea(map);
@@ -216,6 +213,7 @@ const update = (map: Map, ending: boolean, moveSpeed: number): boolean => {
     }
 
     if (map.left <= -data.value.width) {
+        console.log('Map hidden:', map.displayName);
         hideMap(map);
         addMap(nextMap());
     }
@@ -305,15 +303,15 @@ const generateKey = () => {
 }
 
 const updateDimensions = () => {
-    
+
     let reloadMaps = false;
 
-    const newCardCount =  window.innerWidth < 1024 ? 3 : 5;
-    if(data.value.cardCount !== newCardCount) {
+    const newCardCount = window.innerWidth < 1024 ? 3 : 5;
+    if (data.value.cardCount !== newCardCount) {
         data.value.cardCount = newCardCount;
         reloadMaps = true;
     }
-    
+
     data.value.containerWidth = (data.value.width * data.value.cardCount) + (data.value.gap * (data.value.cardCount - 1));
 
     return reloadMaps;
@@ -329,12 +327,13 @@ watch(optionExcludeMaps, () => {
     localStorage.setItem("optionExcludeMaps", JSON.stringify(optionExcludeMaps.value));
 })
 
-watch(data.value, () => {
-    if (!mapItems.value) return;
-    mapItems.value.forEach((map, index) => {
-        map.left = data.value.gap * index + (data.value.width * index);
-    });
-})
+// watch(data.value, () => {
+//     if (!mapItems.value) return;
+//     mapItems.value.forEach((map, index) => {
+//         console.log('Updating map:', map.displayName);
+//         map.left = data.value.gap * index + (data.value.width * index);
+//     });
+// })
 </script>
 
 <template>
