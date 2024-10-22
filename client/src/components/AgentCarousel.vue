@@ -38,6 +38,13 @@ async function loadAgents() {
     return;
   }
 
+  agents.value.forEach((agent) => {
+    const img = new Image();
+    img.src = agent.fullPortrait;
+    const bg = new Image();
+    bg.src = agent.background;
+  });
+
   await requestAgentsFromServer();
 }
 
