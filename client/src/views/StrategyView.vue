@@ -5,7 +5,7 @@
 <template>
   <div class="content">
     <div class="flex-column">
-      <h1>Coming soon...</h1>
+      <h1>{{ $t('Coming soon...') }}</h1>
       <ProgressSpinner />
     </div>
   </div>

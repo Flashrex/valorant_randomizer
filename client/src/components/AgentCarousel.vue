@@ -1,11 +1,15 @@
 <script setup lang="ts">
 import axios from 'axios';
 import type { Agent } from '../types/agent';
-import { computed, onMounted, ref, type ComputedRef } from 'vue';
+import { computed, onMounted, ref, watch, type ComputedRef } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 import selectedImageSrc from '@/assets/icons/selected.png';
 import notSelectedImageSrc from '@/assets/icons/not_selected.png';
 import Errors from './Errors.vue';
+import getLanguageTag from '@/util/language';
+
+const { locale } = useI18n();
 
 const agents = ref([] as Agent[]);
 const currentAgent = ref(null as Agent | null);
@@ -31,11 +35,18 @@ async function loadAgents() {
   const cachedAgents = localStorage.getItem('agents');
 
   if (cachedAgents) {
-    const filtered = JSON.parse(cachedAgents).filter((agent: Agent) => agent.isPlayableCharacter);
-    agents.value = filtered.map((agent: Agent) => ({ ...agent, selected: true }));
+    const data = JSON.parse(cachedAgents);
 
-    currentAgent.value = agents.value[0];
-    return;
+    if (data.lastUpdated && data.lastUpdated + 86400000 < Date.now() || data.lang !== locale.value) {
+      // cache is older than 24 hours or language changed
+      await fetchAgents();
+    } else {
+      agents.value = data.agents;
+      if (!currentAgent.value) currentAgent.value = agents.value[0];
+    }
+
+  } else {
+    await fetchAgents();
   }
 
   agents.value.forEach((agent) => {
@@ -44,8 +55,6 @@ async function loadAgents() {
     const bg = new Image();
     bg.src = agent.background;
   });
-
-  await requestAgentsFromServer();
 }
 
 let isRolling = false;
@@ -100,14 +109,24 @@ function rollAgents(duration: number = 5000, speed: number = 10) {
   }, duration);
 };
 
-async function requestAgentsFromServer() {
-  await axios.get('https://valorant-api.com/v1/agents')
+async function fetchAgents() {
+  await axios.get('https://valorant-api.com/v1/agents/', {
+    params: {
+      isPlayableCharacter: true,
+      language: getLanguageTag(locale.value)
+    }
+  })
     .then((response) => {
-      const filtered = response.data.data.filter((agent: Agent) => agent.isPlayableCharacter);
-      agents.value = filtered.map((agent: Agent) => ({ ...agent, selected: true }));
+      agents.value = response.data.data.map((agent: Agent) => ({ ...agent, selected: true }));
 
-      localStorage.setItem('agents', JSON.stringify(agents.value));
-      currentAgent.value = agents.value[0];
+      const data = {
+        agents: agents.value,
+        lastUpdated: Date.now(),
+        lang: locale.value
+      }
+
+      localStorage.setItem('agents', JSON.stringify(data));
+      if (!currentAgent.value) currentAgent.value = agents.value[0];
     })
     .catch((error) => {
       console.error(error);
@@ -141,6 +160,11 @@ const groupedAgents: ComputedRef<GroupedAgents> = computed(() => {
     return groups;
   }, {} as GroupedAgents);
 });
+
+watch(locale, () => {
+  loadAgents();
+});
+
 </script>
 
 <template>
@@ -161,23 +185,21 @@ const groupedAgents: ComputedRef<GroupedAgents> = computed(() => {
 
       <Errors v-if="errors" :errors="errors" />
 
-      <button @click="rollAgents()">Randomize</button>
+      <button @click="rollAgents()">{{ $t("Spin") }}</button>
       <div class="flex">
-        <label>Skip Animation</label>
+        <label>{{ $t('Skip Animation') }}</label>
         <img v-if="noAnimation" class="sel-icon" :src="selectedImage.src" alt="selected"
           @click="noAnimation = !noAnimation">
         <img v-else class="sel-icon" :src="notSelectedImage.src" alt="not_selected" @click="noAnimation = !noAnimation">
       </div>
     </div>
 
-
-
     <div class="select-container flex-column">
       <div v-for="(group, roleName) in groupedAgents" :key="roleName" class="settings-container">
         <div class="flex">
           <h3>{{ roleName }}</h3>
           <div class="flex">
-            <button @click="selectGroup(roleName.toString())">Select Group</button>
+            <button @click="selectGroup(roleName.toString())">{{ $t('Select Group') }}</button>
           </div>
         </div>
         <div class="flex-wrap">
@@ -191,8 +213,8 @@ const groupedAgents: ComputedRef<GroupedAgents> = computed(() => {
 
       <div class="button-container">
         <div class="flex">
-          <button @click="selectAllAgents()">Select All</button>
-          <button @click="selectAllAgents(false)">Deselect All</button>
+          <button @click="selectAllAgents()">{{ $t('Select All') }}</button>
+          <button @click="selectAllAgents(false)">{{ $t('De-select All') }}</button>
         </div>
       </div>
     </div>

@@ -326,27 +326,19 @@ watch(optionExcludeMaps, () => {
     localStorage.setItem("usedMaps", JSON.stringify(usedMaps));
     localStorage.setItem("optionExcludeMaps", JSON.stringify(optionExcludeMaps.value));
 })
-
-// watch(data.value, () => {
-//     if (!mapItems.value) return;
-//     mapItems.value.forEach((map, index) => {
-//         console.log('Updating map:', map.displayName);
-//         map.left = data.value.gap * index + (data.value.width * index);
-//     });
-// })
 </script>
 
 <template>
     <div class="raffle-container">
         <div v-if="!isLoading" class="inner-raffle-container" :style="{ width: `${data.containerWidth}px` }">
             <div class="raffle">
-                <div v-for="(map, index) in mapItems" class="raffle-item" :class="map.current ? 'current' : ''"
+                <div v-for="map in mapItems" class="raffle-item" :class="map.current ? 'current' : ''"
                     :style="{ width: `${data.width}px`, left: `${map.left}px` }" :key="map.key">
                     <img :src="map.listViewIconTall">
                     <p>{{ map.displayName }}</p>
                     <transition name="fade">
                         <button class="button-spin" v-if="map.current && isButtonVisible" ref="spinButton"
-                            @click="onSpin">Spin</button>
+                            @click="onSpin">{{ $t('Spin') }}</button>
                     </transition>
                 </div>
 
@@ -365,13 +357,13 @@ watch(optionExcludeMaps, () => {
                 <Errors v-if="errors" :errors="errors" />
             </div>
             <div style="display: flex; gap: 1rem;">
-                <button @click="selectAll">Select All</button>
-                <button @click="deselectAll">Deselect All</button>
+                <button @click="selectAll">{{ $t('Select All') }}</button>
+                <button @click="deselectAll">{{ $t('De-select All') }}</button>
             </div>
             <div class="flex options-container" @click="optionExcludeMaps = !optionExcludeMaps">
                 <img v-if="optionExcludeMaps" class="sel-icon" :src="selectedImage.src" alt="selected">
                 <img v-else class="sel-icon" :src="notSelectedImage.src" alt="not_selected">
-                <label>Exclude rolled map from future rolls</label>
+                <label>{{ $t('Exclude rolled map from future rolls') }}</label>
             </div>
         </div>
     </div>
