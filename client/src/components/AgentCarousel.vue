@@ -136,7 +136,6 @@ async function fetchAgents() {
 function agentSelect(agent: Agent) {
   if (isRolling) return;
   agent.selected = !agent.selected;
-  console.log(agent);
 }
 
 function selectAllAgents(select = true) {
