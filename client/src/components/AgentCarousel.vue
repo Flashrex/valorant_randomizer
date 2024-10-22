@@ -194,7 +194,6 @@ const groupedAgents: ComputedRef<GroupedAgents> = computed(() => {
 <style scoped>
 .carousel-container {
   margin: 1rem;
-  width: 50vw;
   position: relative;
 
   gap: 0.5rem;
@@ -221,7 +220,7 @@ const groupedAgents: ComputedRef<GroupedAgents> = computed(() => {
 
 .agent-portrait {
   position: relative;
-  height: 40vh;
+  height: 20vw;
   opacity: 1;
   z-index: 2;
 }
