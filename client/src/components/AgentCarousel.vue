@@ -175,7 +175,7 @@ watch(locale, () => {
           <img class="agent-portrait" :src="currentAgent.fullPortrait" :alt="currentAgent.displayName">
         </span>
 
-        <h2>{{ currentAgent.displayName }}</h2>
+        <h2 class="agent-name">{{ currentAgent.displayName }}</h2>
         <div class="role-container">
           <img :src="currentAgent.role?.displayIcon" :alt="currentAgent.role?.displayName">
           <p>{{ currentAgent.role?.displayName }}</p>
@@ -291,6 +291,10 @@ h2 {
   display: flex;
   flex-direction: column;
   align-items: start;
+}
+
+.agent-name {
+  font-family: 'ValorantFont', sans-serif;
 }
 
 .role-container {

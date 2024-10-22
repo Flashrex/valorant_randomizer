@@ -75,6 +75,7 @@ function isSelected(page: string) {
     display: flex;
     flex-direction: column;
     align-items: center;
+    user-select: none;
     transition: width 0.5s;
 }
 
