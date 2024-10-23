@@ -3,6 +3,10 @@ import Database from './database/index';
 import Server from './server';
 import { updateMaps } from './maps/service';
 
+process.on("unhandledRejection", (err: any) => {
+  Logger.error('Unhandled Exception', err);
+});
+
 Database.instance.connect().then(() => {
   Database.instance.checkTables();
 
@@ -17,9 +21,7 @@ Database.instance.connect().then(() => {
   process.exit(1);
 });
 
-process.on("unhandledRejection", (err: any) => {
-  Logger.error('Unhandled Exception', err);
-});
+
 
 
 
