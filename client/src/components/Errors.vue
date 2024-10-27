@@ -8,7 +8,7 @@ const props = defineProps({
 
 <template>
     <ul v-if="props.errors">
-        <li v-for="(error, index) in errors" :key="index">{{ error }}</li>
+        <li v-for="(error, index) in errors" :key="index">{{ $t(error.toString()) }}</li>
     </ul>
 </template>
 

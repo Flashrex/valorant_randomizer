@@ -24,5 +24,7 @@
     "Strategies": "Strategiat",
     "About": "Tietoja",
     "Buy me a coffee": "Osta minulle kahvi",
-    "If you like this project and want to support me, consider buying me a coffee.": "Jos pidät tästä projektista ja haluat tukea minua, harkitse minulle kahvin ostamista."
+    "If you like this project and want to support me, consider buying me a coffee.": "Jos pidät tästä projektista ja haluat tukea minua, harkitse minulle kahvin ostamista.",
+    "Please select at least one map.": "Valitse vähintään yksi kartta.",
+    "No agents selected": "Ei valittuja agentteja"
 }
