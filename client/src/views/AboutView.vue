@@ -1,5 +1,4 @@
 <script setup lang="ts">
-
 </script>
 
 <template>
@@ -13,14 +12,13 @@
           target="_blank">valorant-api.com</a>.</p>
     </section>
 
-    <!-- <section>
-      <h1>Buy me a coffee</h1>
-      <p>If you like this project and want to support me, consider buying me a coffee.</p>
-      <a class="buy-coffee" href="https://www.buymeacoffee.com/flashrex" target="_blank" rel="noopener noreferrer">
-        <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee"
-          style="height: 60px !important;width: 217px !important;" />
-      </a>
-    </section> -->
+    <section>
+      <h1>{{ $t('Buy me a coffee') }}</h1>
+      <p>{{ $t('If you like this project and want to support me, consider buying me a coffee.') }}</p>
+      <a href='https://ko-fi.com/I2I115AQ06' target='_blank'><img height='36'
+          style='margin: 1rem;border:0px;height:36px;' src='https://storage.ko-fi.com/cdn/kofi4.png?v=6' border='0'
+          alt='Buy Me a Coffee at ko-fi.com' /></a>
+    </section>
 
     <!-- <section>
       <h1>Contribute</h1>
