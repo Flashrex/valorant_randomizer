@@ -31,8 +31,8 @@ app.component('ProgressSpinner', ProgressSpinner)
 app.use(router)
 
 const i18n = createI18n({
-    locale: 'de',
-    fallbackLocale: 'us',
+    locale: 'us',
+    fallbackLocale: 'de',
     messages: {
         de: deDE,
         us: enUS,
