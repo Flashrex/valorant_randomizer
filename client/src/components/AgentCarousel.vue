@@ -9,6 +9,8 @@ import notSelectedImageSrc from '@/assets/icons/not_selected.png';
 import Errors from './Errors.vue';
 import getLanguageTag from '@/util/language';
 
+const REFRESH_TIME = 3600000; // 1 hour
+
 const { locale } = useI18n();
 
 const agents = ref([] as Agent[]);
@@ -37,8 +39,8 @@ async function loadAgents() {
   if (cachedAgents) {
     const data = JSON.parse(cachedAgents);
 
-    if (data.lastUpdated && data.lastUpdated + 86400000 < Date.now() || data.lang !== locale.value) {
-      // cache is older than 24 hours or language changed
+    if (data.lastUpdated && data.lastUpdated + REFRESH_TIME < Date.now() || data.lang !== locale.value) {
+      // cache is older than REFRESH_TIME or language changed
       await fetchAgents();
     } else {
       agents.value = data.agents;
