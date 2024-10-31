@@ -2,8 +2,8 @@ import { Router } from "express";
 
 const router = Router();
 
-import { listMaps } from "./controller";
+import * as MapController from "./controller";
 
-router.get("/", listMaps);
+router.get("/", MapController.listMaps);
 
 export default router;

@@ -7,6 +7,8 @@ import Logger from './misc/logger';
 import ENV from './misc/environment';
 
 import mapsRouter from './maps/index';
+import strategyRouter from './strategies/index';
+
 import { NotImplementedError } from "./errors/NotImplementedError";
 
 const allowedOrigins = [
@@ -71,6 +73,7 @@ export default class Server {
         }
 
         this.app.use("/api/maps", mapsRouter);
+        this.app.use("/api/strategies", strategyRouter);
     }
 
     stop() {

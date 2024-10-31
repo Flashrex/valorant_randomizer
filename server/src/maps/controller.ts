@@ -5,7 +5,7 @@ import { Map } from '../types/Map';
 
 async function listMaps(req: Request, res: Response) {
     try {
-        let maps = await model.getAll();
+        let maps = await model.getAll() as Map[];
 
         maps = maps.filter((map: Map) => map.gamemode === (req.params.gamemode ?? 'competitive'));
 
