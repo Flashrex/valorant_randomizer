@@ -2,6 +2,8 @@
 
 This is a fanmade valorant application and is not in any way associated with Riot Games.
 
+https://valomizer.net
+
 ## Environment Setup
 
 This application is using docker.
