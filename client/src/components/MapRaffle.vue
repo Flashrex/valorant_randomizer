@@ -102,16 +102,26 @@ async function fetchMaps(): Promise<Map[]> {
 }
 
 const addMapItems = () => {
-    if (!maps.value) return;
+    if (maps.value.length === 0) return;
     mapItems.value = [];
 
-    const activeMaps = maps.value.filter(map => map.selected).splice(0, data.value.cardCount + 1);
+    const activeMaps = maps.value.filter(map => map.selected);
+    let cards = [];
 
-    shuffleArray(activeMaps);
+    if(activeMaps.length === 0) {
+        cards = Array(5).fill(maps.value[0]);
+    } else {
+        const randomMaps = [];
+        for (let i = 0; i < data.value.cardCount; i++) {
+            const randomIndex = Math.floor(Math.random() * activeMaps.length);
+            randomMaps.push(activeMaps[randomIndex]);
+        }
+        cards = randomMaps;
+    }
 
-    resetMaps(activeMaps);
-
-    mapItems.value = [...activeMaps];
+    shuffleArray(cards);
+    resetMaps(cards);
+    mapItems.value = [...cards];
 }
 
 const resetMaps = (maps: Map[]) => {
