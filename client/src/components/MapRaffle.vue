@@ -106,21 +106,24 @@ const addMapItems = () => {
     mapItems.value = [];
 
     const activeMaps = maps.value.filter(map => map.selected);
-    let cards = [];
+    let cards = [] as Map[];
 
     if(activeMaps.length === 0) {
-        cards = Array(5).fill(maps.value[0]);
+        for(let i = 0; i < data.value.cardCount; i++) {
+            cards.push({ ... maps.value[0] });
+        }
     } else {
         const randomMaps = [];
         for (let i = 0; i < data.value.cardCount; i++) {
             const randomIndex = Math.floor(Math.random() * activeMaps.length);
-            randomMaps.push(activeMaps[randomIndex]);
+            randomMaps.push({ ...activeMaps[randomIndex] });
         }
         cards = randomMaps;
+        shuffleArray(cards);
     }
 
-    shuffleArray(cards);
     resetMaps(cards);
+
     mapItems.value = [...cards];
 }
 
@@ -128,10 +131,11 @@ const resetMaps = (maps: Map[]) => {
     if (!maps) return;
 
     maps.forEach((map, index) => {
-        if (index === Math.floor(data.value.cardCount / 2)) map.current = true;
-        else map.current = false;
+       
+        map.current = index === Math.floor(data.value.cardCount / 2);
         map.key = generateKey();
         map.left = data.value.gap * index + (data.value.width * index);
+       
         map.hidden = false;
     });
 }
@@ -196,7 +200,6 @@ const update = (map: Map, ending: boolean, moveSpeed: number): boolean => {
 
     if (ending) {
         if (map.current && isCentered(map) && moveSpeed <= data.value.minMoveSpeed) {
-            console.log('Winner:', map.displayName);
             if (optionExcludeMaps.value) {
                 if (!usedMaps.includes(map.displayName)) {
                     usedMaps.push(map.displayName);
@@ -223,7 +226,6 @@ const update = (map: Map, ending: boolean, moveSpeed: number): boolean => {
     }
 
     if (map.left <= -data.value.width) {
-        console.log('Map hidden:', map.displayName);
         hideMap(map);
         addMap(nextMap());
     }
