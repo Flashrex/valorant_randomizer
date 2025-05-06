@@ -55,8 +55,8 @@ export default class Server {
         this.app.use(cors(corsOptions));
 
         const options = {
-            cert: fs.readFileSync('/etc/ssl/certs/fullchain.pem'),
-            key: fs.readFileSync('/etc/ssl/private/privkey.pem')
+            cert: fs.readFileSync('./.ssl/fullchain.pem'),
+            key: fs.readFileSync('./.ssl/privkey.pem')
         };
 
         if(ENV.ENVIRONMENT === 'dev') {
